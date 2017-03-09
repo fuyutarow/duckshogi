@@ -78,11 +78,30 @@ export class Duckshogi extends React.Component<Props, {}> {
   gameState: string;
   ctx: any;
 
-  pent = (x:number, y:number, r:number) => {
+  frenemy = (x:number, y:number, r:number, f:number) => {
     this.ctx.beginPath();
-    this.ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
-    Immutable.Range(1,6).toArray().map( (i) => {
-      this.ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
+    if( f>0 ){// frined
+      this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
+      [1,2,4,5].map( (i) => {
+        this.ctx.lineTo( x + r*Math.cos(i*TPI/6 - TPI/4), y + r*Math.sin(i*TPI/6 - TPI/4) )});
+    }
+    else if( f<0 ){// enemy
+      this.ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
+      [1,2,4,5].map( (i) => {
+        this.ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
+    }
+    else{// frenemy
+      this.ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
+      [1,2,3,4,5].map( (i) => {
+        this.ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
+    }
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.lineWidth=2;
+    this.ctx.stroke();};
+
+  friend = (x:number, y:number, r:number) => {
+    this.ctx.beginPath();
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.lineWidth=2;
@@ -123,7 +142,7 @@ export class Duckshogi extends React.Component<Props, {}> {
     };
 
   drawPieces = () => {
-    this.board
+    this.props.state.board
     .map( (value,idx) =>  { return { idx:idx, v:value } })
     .filter( a => a.v!=0 )
     .map( a => {
@@ -133,21 +152,16 @@ export class Duckshogi extends React.Component<Props, {}> {
         case 4: this.ctx.fillStyle = '#ffff22'; break;
         case 8: this.ctx.fillStyle = '#90ee90'; break;
         default: this.ctx.fillStyle = '#ffffff';break; }
-        this.pent( p2centerXY(a.idx).x, p2centerXY(a.idx).y, 30 )});}
+        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, 30, a.v )});}
 
   render() {
-    this.board = this.props.state.board;
-    //this.step = this.props.state.step;
-
     return (
       <div>
-        <p>{ this.props.state.phase }</p>
-        <p>{ this.props.state.board }</p>
-        <p>{ this.props.state.remarked }</p>
+        <h3>STEP: { this.props.state.step }</h3>
+        <p><button onClick={ () => this.props.actions.undo() }>UNDO</button></p>
         <canvas ref="myCanvas"/>
       </div>
     );
-
   }
 
   componentDidMount() {
@@ -159,18 +173,10 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawSquares();
     this.drawPieces();
 
-
-// for remarked
-
     canvas.onmousedown = e => {
       const p = mouse2p( e.offsetX, e.offsetY );
-      //if( this.props.state.phase == "waiting"){
-        console.log(p)
         this.props.actions.click( p );
-      //}
     }
-
-
   }
 
   componentDidUpdate() {
@@ -178,59 +184,5 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
-
-}}
-    /*canvas.onmousedown = e => {
-      const L2 = (x:number,y:number) => Math.sqrt( x*x + y*y );
-      const mouse2ij = ( mouseX:number, mouseY:number) => {
-        const p = Immutable.Range(0,15).toArray()
-          .map( a => p2ij(a) )
-          .map( (a,idx) => Math.floor( L2( a.i-mouseX, a.j-mouseY )*1000 )*1000 +idx )
-          .reduce( (a,b) => Math.min(a, b) )
-        console.log(p);
-          //.map( a => { console.log(a)})
-          //.map( a => a%1000 )
-        //return p;
-      }
-      //const ij = mouse2ij( e.offsetX, e.offsetY );
-      //console.log(ij);
-    }
-
-    */
-
-    /*
-
-    const Hex = (x:number, y:number, r:number) => {
-      ctx.beginPath();
-      ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
-      Immutable.Range(1,6).toArray().map( i => {
-        ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    };
-
-// for click
-    const honeyComb = Immutable.Range(0,W*H).toArray()
-      .map( p => {
-        switch( this.props.state.cells[p] ){
-          case 0: ctx.fillStyle = '#ffff22';break;
-          case 1: ctx.fillStyle = '#ff2222';break;
-          case -1: ctx.fillStyle = '#2222ff';break;
-          default: ctx.fillStyle = '#ffffff';
-        };
-        Hex( p2mouseXY(p).x, p2mouseXY(p).y , R ) });
-
-
-// for AI
-    if( this.props.state.step%2 == 0 ){
-      Bee.readCells( this.props.state.cells );
-      const p = Bee.neighbor();
-      const lastRecord = this.props.state.record[this.props.state.record.length-1];
-      setTimeout( () => this.props.actions.red( p ) , 1000);
-    }
-
-// for termial
-
   }
-*/
+}

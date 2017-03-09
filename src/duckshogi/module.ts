@@ -49,7 +49,7 @@ const willPosition = ( duck:number, p:number ) => canMove(duck)
 export interface DuckshogiState {
   board: number[];
   step: number;
-  record: number[][];
+  record: any[];
   remarked: number;
   phase: string;
 }
@@ -80,7 +80,7 @@ const INITIAL_STATE =  {
     PIECES["Elephant"], PIECES["Lion"], PIECES["Giraffe"]
   ],
   step: 0,
-  record: [[0,0,0]],
+  record: [{ predator:0, from:-100, to:-100, prey:0 }],
   phase: "waiting",
 };
 
@@ -101,33 +101,29 @@ export default function reducer(
       else if( state.phase == "selecting"){
         const duck = state.board[state.remarked];
         if( willPosition( duck, state.remarked ).indexOf( action.clicked ) == -1 ){
-          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );          
+          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
         }
+        const prey = state.board[action.clicked];
         const newBoard = state.board
           .map( (a,idx) =>
             idx==state.remarked? 0:
             idx==action.clicked? duck: a );
         let newRecord = state.record;
-        newRecord.push( [duck, state.remarked, action.clicked] )
+        newRecord.push( { predator:duck, from:state.remarked, to:action.clicked, prey:prey } )
         return Object.assign( {}, state, { step: state.step+1, phase: "waiting", board: newBoard, record: newRecord, remarked: -100 } )
       }
-    case ActionTypes.REMARK:
-      if( state.board[action.remarked] > 0 && action.remarked != state.remarked ){
-        const remarked = action.remarked;
-        return Object.assign( {}, state, { phase: "selecting", remarked: remarked } )
-      }else{
-        return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
-      }
 
-    case ActionTypes.MOVE:
-      const duck = state.board[action.from];
-      const newBoard = state.board
+    case ActionTypes.UNDO:
+      if (state.step<=0){
+        return Object.assign({}, state, { step: 0 });
+      }
+      let undoRecord = state.record;
+      const lastRecord = undoRecord.pop();
+      const undoBoard = state.board
         .map( (a,idx) =>
-          a==action.from? 0:
-          a==action.to? duck: a );
-      let newRecord = state.record;
-      newRecord.push( [duck, action.from, action.to] )
-      return Object.assign( {}, state, { step: state.step+1, phase: "waiting", board: newBoard, record: newRecord } )
+          idx==lastRecord.to? lastRecord.prey:
+          idx==lastRecord.from? lastRecord.predator: a );
+      return Object.assign( {}, state, { step: state.step-1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100 } )
 
     default:
       return state;
@@ -141,12 +137,6 @@ export class ActionDispatcher {
   }
   click( clicked: number ){
     this.dispatch({ type: ActionTypes.CLICK, clicked: clicked });
-  }
-  remark( remarked: number ){
-    this.dispatch({ type: ActionTypes.REMARK, remarked: remarked });
-  }
-  move( from: number, to:number ){
-    this.dispatch({ type: ActionTypes.MOVE, from: from, to: to });
   }
   undo(){
     this.dispatch({ type: ActionTypes.UNDO });

@@ -10410,7 +10410,7 @@ var INITIAL_STATE = {
         PIECES["Elephant"], PIECES["Lion"], PIECES["Giraffe"]
     ],
     step: 0,
-    record: [[0, 0, 0]],
+    record: [{ predator: 0, from: -100, to: -100, prey: 0 }],
     phase: "waiting",
 };
 function reducer(state, action) {
@@ -10431,33 +10431,28 @@ function reducer(state, action) {
                 if (willPosition(duck_1, state.remarked).indexOf(action.clicked) == -1) {
                     return Object.assign({}, state, { phase: "waiting", remarked: -100 });
                 }
-                var newBoard_1 = state.board
+                var prey = state.board[action.clicked];
+                var newBoard = state.board
                     .map(function (a, idx) {
                     return idx == state.remarked ? 0 :
                         idx == action.clicked ? duck_1 : a;
                 });
-                var newRecord_1 = state.record;
-                newRecord_1.push([duck_1, state.remarked, action.clicked]);
-                return Object.assign({}, state, { step: state.step + 1, phase: "waiting", board: newBoard_1, record: newRecord_1, remarked: -100 });
+                var newRecord = state.record;
+                newRecord.push({ predator: duck_1, from: state.remarked, to: action.clicked, prey: prey });
+                return Object.assign({}, state, { step: state.step + 1, phase: "waiting", board: newBoard, record: newRecord, remarked: -100 });
             }
-        case ActionTypes.REMARK:
-            if (state.board[action.remarked] > 0 && action.remarked != state.remarked) {
-                var remarked = action.remarked;
-                return Object.assign({}, state, { phase: "selecting", remarked: remarked });
+        case ActionTypes.UNDO:
+            if (state.step <= 0) {
+                return Object.assign({}, state, { step: 0 });
             }
-            else {
-                return Object.assign({}, state, { phase: "waiting", remarked: -100 });
-            }
-        case ActionTypes.MOVE:
-            var duck_2 = state.board[action.from];
-            var newBoard = state.board
+            var undoRecord = state.record;
+            var lastRecord_1 = undoRecord.pop();
+            var undoBoard = state.board
                 .map(function (a, idx) {
-                return a == action.from ? 0 :
-                    a == action.to ? duck_2 : a;
+                return idx == lastRecord_1.to ? lastRecord_1.prey :
+                    idx == lastRecord_1.from ? lastRecord_1.predator : a;
             });
-            var newRecord = state.record;
-            newRecord.push([duck_2, action.from, action.to]);
-            return Object.assign({}, state, { step: state.step + 1, phase: "waiting", board: newBoard, record: newRecord });
+            return Object.assign({}, state, { step: state.step - 1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100 });
         default:
             return state;
     }
@@ -10468,12 +10463,6 @@ var ActionDispatcher = (function () {
     }
     ActionDispatcher.prototype.click = function (clicked) {
         this.dispatch({ type: ActionTypes.CLICK, clicked: clicked });
-    };
-    ActionDispatcher.prototype.remark = function (remarked) {
-        this.dispatch({ type: ActionTypes.REMARK, remarked: remarked });
-    };
-    ActionDispatcher.prototype.move = function (from, to) {
-        this.dispatch({ type: ActionTypes.MOVE, from: from, to: to });
     };
     ActionDispatcher.prototype.undo = function () {
         this.dispatch({ type: ActionTypes.UNDO });
@@ -29090,12 +29079,33 @@ var Duckshogi = (function (_super) {
     __extends(Duckshogi, _super);
     function Duckshogi() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.pent = function (x, y, r) {
+        _this.frenemy = function (x, y, r, f) {
             _this.ctx.beginPath();
-            _this.ctx.moveTo(x + r * Math.cos(TPI / 4), y + r * Math.sin(TPI / 4));
-            __WEBPACK_IMPORTED_MODULE_1_immutable__["Range"](1, 6).toArray().map(function (i) {
-                _this.ctx.lineTo(x + r * Math.cos(i * TPI / 6 + TPI / 4), y + r * Math.sin(i * TPI / 6 + TPI / 4));
-            });
+            if (f > 0) {
+                _this.ctx.moveTo(x - r * Math.cos(TPI / 4), y - r * Math.sin(TPI / 4));
+                [1, 2, 4, 5].map(function (i) {
+                    _this.ctx.lineTo(x + r * Math.cos(i * TPI / 6 - TPI / 4), y + r * Math.sin(i * TPI / 6 - TPI / 4));
+                });
+            }
+            else if (f < 0) {
+                _this.ctx.moveTo(x + r * Math.cos(TPI / 4), y + r * Math.sin(TPI / 4));
+                [1, 2, 4, 5].map(function (i) {
+                    _this.ctx.lineTo(x + r * Math.cos(i * TPI / 6 + TPI / 4), y + r * Math.sin(i * TPI / 6 + TPI / 4));
+                });
+            }
+            else {
+                _this.ctx.moveTo(x + r * Math.cos(TPI / 4), y + r * Math.sin(TPI / 4));
+                [1, 2, 3, 4, 5].map(function (i) {
+                    _this.ctx.lineTo(x + r * Math.cos(i * TPI / 6 + TPI / 4), y + r * Math.sin(i * TPI / 6 + TPI / 4));
+                });
+            }
+            _this.ctx.closePath();
+            _this.ctx.fill();
+            _this.ctx.lineWidth = 2;
+            _this.ctx.stroke();
+        };
+        _this.friend = function (x, y, r) {
+            _this.ctx.beginPath();
             _this.ctx.closePath();
             _this.ctx.fill();
             _this.ctx.lineWidth = 2;
@@ -29138,7 +29148,7 @@ var Duckshogi = (function (_super) {
             });
         };
         _this.drawPieces = function () {
-            _this.board
+            _this.props.state.board
                 .map(function (value, idx) { return { idx: idx, v: value }; })
                 .filter(function (a) { return a.v != 0; })
                 .map(function (a) {
@@ -29159,18 +29169,19 @@ var Duckshogi = (function (_super) {
                         _this.ctx.fillStyle = '#ffffff';
                         break;
                 }
-                _this.pent(p2centerXY(a.idx).x, p2centerXY(a.idx).y, 30);
+                _this.frenemy(p2centerXY(a.idx).x, p2centerXY(a.idx).y, 30, a.v);
             });
         };
         return _this;
     }
     Duckshogi.prototype.render = function () {
-        this.board = this.props.state.board;
-        //this.step = this.props.state.step;
+        var _this = this;
         return (__WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("div", null,
-            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null, this.props.state.phase),
-            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null, this.props.state.board),
-            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null, this.props.state.remarked),
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
+                "STEP: ",
+                this.props.state.step),
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null,
+                __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () { return _this.props.actions.undo(); } }, "UNDO")),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("canvas", { ref: "myCanvas" })));
     };
     Duckshogi.prototype.componentDidMount = function () {
@@ -29181,13 +29192,9 @@ var Duckshogi = (function (_super) {
         this.ctx = canvas.getContext('2d');
         this.drawSquares();
         this.drawPieces();
-        // for remarked
         canvas.onmousedown = function (e) {
             var p = mouse2p(e.offsetX, e.offsetY);
-            //if( this.props.state.phase == "waiting"){
-            console.log(p);
             _this.props.actions.click(p);
-            //}
         };
     };
     Duckshogi.prototype.componentDidUpdate = function () {
@@ -29198,59 +29205,6 @@ var Duckshogi = (function (_super) {
     return Duckshogi;
 }(__WEBPACK_IMPORTED_MODULE_0_react__["Component"]));
 
-/*canvas.onmousedown = e => {
-  const L2 = (x:number,y:number) => Math.sqrt( x*x + y*y );
-  const mouse2ij = ( mouseX:number, mouseY:number) => {
-    const p = Immutable.Range(0,15).toArray()
-      .map( a => p2ij(a) )
-      .map( (a,idx) => Math.floor( L2( a.i-mouseX, a.j-mouseY )*1000 )*1000 +idx )
-      .reduce( (a,b) => Math.min(a, b) )
-    console.log(p);
-      //.map( a => { console.log(a)})
-      //.map( a => a%1000 )
-    //return p;
-  }
-  //const ij = mouse2ij( e.offsetX, e.offsetY );
-  //console.log(ij);
-}
-
-*/
-/*
-
-const Hex = (x:number, y:number, r:number) => {
-  ctx.beginPath();
-  ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
-  Immutable.Range(1,6).toArray().map( i => {
-    ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-};
-
-// for click
-const honeyComb = Immutable.Range(0,W*H).toArray()
-  .map( p => {
-    switch( this.props.state.cells[p] ){
-      case 0: ctx.fillStyle = '#ffff22';break;
-      case 1: ctx.fillStyle = '#ff2222';break;
-      case -1: ctx.fillStyle = '#2222ff';break;
-      default: ctx.fillStyle = '#ffffff';
-    };
-    Hex( p2mouseXY(p).x, p2mouseXY(p).y , R ) });
-
-
-// for AI
-if( this.props.state.step%2 == 0 ){
-  Bee.readCells( this.props.state.cells );
-  const p = Bee.neighbor();
-  const lastRecord = this.props.state.record[this.props.state.record.length-1];
-  setTimeout( () => this.props.actions.red( p ) , 1000);
-}
-
-// for termial
-
-}
-*/
 
 
 /***/ }),
