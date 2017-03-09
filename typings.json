@@ -1,0 +1,6 @@
+{
+  "name": "duckshogi",
+  "dependencies": {
+    "immutable": "registry:npm/immutable#3.7.6+20160411060006"
+  }
+}
