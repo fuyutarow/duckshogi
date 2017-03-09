@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Duckshogi
-=======
-# duckshogi
->>>>>>> 83918bd9ceb6f1488633737d7bf71c29b2b989f7
 
 ## Demo
 
@@ -26,5 +22,4 @@ typings install
 
 ### run
 `python3 -m http.server 8000`
-
 access localhost:8000/dist
