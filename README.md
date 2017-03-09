@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Duckshogi
+=======
+# duckshogi
+>>>>>>> 83918bd9ceb6f1488633737d7bf71c29b2b989f7
 
 ## Demo
 
