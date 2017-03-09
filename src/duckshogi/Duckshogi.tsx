@@ -46,7 +46,8 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.stroke();};
 
   remarkP = ( p:number ) => {
-    if( this.props.state.board[p] <= 0 ) return;
+    const sign = this.props.state.step %2 *2 *(-1) +1;
+    if( this.props.state.board[p]*sign <= 0 ) return;
     this.ctx.beginPath();
     this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
     this.ctx.fillStyle = '#eeee66';
@@ -71,6 +72,7 @@ export class Duckshogi extends React.Component<Props, {}> {
     Immutable.Range(0,12).toArray()
       .map( p => {
         this.ctx.beginPath();
+
         this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
         this.ctx.lineWidth=4;
         this.ctx.stroke();});
@@ -110,7 +112,7 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     canvas.onmousedown = e => {
       const p = mouse2p( e.offsetX, e.offsetY );
-        this.props.actions.click( p );
+      this.props.actions.click( p );
     }
   }
 
@@ -119,5 +121,18 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
+
+// for terminal
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = "80pt Arial";
+    this.ctx.textAlign = "center";
+    if( this.props.state.phase == "firstWin" ){
+      this.ctx.fillText("You", canvas.width/2, canvas.height/3);
+      this.ctx.fillText("Win!", canvas.width/2, canvas.height*2/3);
+    }
+    if( this.props.state.phase == "secondWin" ){
+      this.ctx.fillText("You", canvas.width/2, canvas.height/3);
+      this.ctx.fillText("lose!", canvas.width/2, canvas.height*2/3);
+    }
   }
 }

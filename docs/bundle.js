@@ -15361,17 +15361,19 @@ var INITIAL_STATE = {
 function reducer(state, action) {
     if (state === void 0) { state = INITIAL_STATE; }
     switch (action.type) {
-        case ActionTypes.CLICK:
-            if (state.phase == "waiting") {
-                if (state.board[action.clicked] > 0 && action.clicked != state.remarked) {
+        case ActionTypes.CLICK: switch (state.phase) {
+            case "waiting":
+                var sign = state.step % 2 * 2 * (-1) + 1;
+                console.log(">>", state.board[action.clicked] * sign);
+                if (state.board[action.clicked] * sign > 0 && action.clicked != state.remarked) {
                     var remarked = action.clicked;
+                    console.log("rem ", remarked);
                     return Object.assign({}, state, { phase: "selecting", remarked: remarked });
                 }
                 else {
                     return Object.assign({}, state, { phase: "waiting", remarked: -100 });
                 }
-            }
-            else if (state.phase == "selecting") {
+            case "selecting":
                 var duck_1 = state.board[state.remarked];
                 if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["b" /* willPosition */])(duck_1, state.remarked).indexOf(action.clicked) == -1) {
                     return Object.assign({}, state, { phase: "waiting", remarked: -100 });
@@ -15380,12 +15382,17 @@ function reducer(state, action) {
                 var newBoard = state.board
                     .map(function (a, idx) {
                     return idx == state.remarked ? 0 :
-                        idx == action.clicked ? duck_1 : a;
+                        idx != action.clicked ? a :
+                            Math.abs(duck_1) != __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] ? duck_1 :
+                                duck_1 == __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["f" /* p2ij */])(action.clicked).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Hen"]) :
+                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["f" /* p2ij */])(action.clicked).j != 4 ? -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Hen"]);
                 });
                 var newRecord = state.record;
                 newRecord.push({ predator: duck_1, from: state.remarked, to: action.clicked, prey: prey });
-                return Object.assign({}, state, { step: state.step + 1, phase: "waiting", board: newBoard, record: newRecord, remarked: -100 });
-            }
+                var newPhase = state.record[state.record.length - 1].prey == -1 ? "firstWin" :
+                    state.record[state.record.length - 1].prey == 1 ? "secondWin" : "waiting";
+                return Object.assign({}, state, { step: state.step + 1, phase: newPhase, board: newBoard, record: newRecord, remarked: -100 });
+        }
         case ActionTypes.UNDO:
             if (state.step <= 0) {
                 return Object.assign({}, state, { step: 0 });
@@ -15430,7 +15437,7 @@ var ActionDispatcher = (function () {
 /* unused harmony export W */
 /* unused harmony export H */
 /* unused harmony export MERGIN */
-/* unused harmony export p2ij */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return p2ij; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return p2northwestXY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return p2centerXY; });
 /* unused harmony export L2 */
@@ -15500,11 +15507,14 @@ var p2ij4moving = function (n) {
         j: -4 <= n && n < -1 ? -1 : -1 <= n && n < 2 ? 0 : 1
     };
 };
-var willPosition = function (duck, p) { return canMove(duck)
-    .map(function (a) { return moving(a); })
-    .filter(function (a) { return (0 <= (p2ij(p).i + p2ij4moving(a).i) && (p2ij(p).i + p2ij4moving(a).i) < 3 &&
-    0 <= (p2ij(p).j + p2ij4moving(a).j) && (p2ij(p).j + p2ij4moving(a).j) < 4); })
-    .map(function (a) { return p + a; }); };
+var willPosition = function (duck, p) {
+    var d = duck > 0 ? [duck, 1] : [Math.abs(duck), -1];
+    return canMove(d[0])
+        .map(function (a) { return moving(a) * d[1]; })
+        .filter(function (a) { return (0 <= (p2ij(p).i + p2ij4moving(a).i) && (p2ij(p).i + p2ij4moving(a).i) < 3 &&
+        0 <= (p2ij(p).j + p2ij4moving(a).j) && (p2ij(p).j + p2ij4moving(a).j) < 4); })
+        .map(function (a) { return p + a; });
+};
 
 
 /***/ }),
@@ -29098,7 +29108,8 @@ var Duckshogi = (function (_super) {
             _this.ctx.stroke();
         };
         _this.remarkP = function (p) {
-            if (_this.props.state.board[p] <= 0)
+            var sign = _this.props.state.step % 2 * 2 * (-1) + 1;
+            if (_this.props.state.board[p] * sign <= 0)
                 return;
             _this.ctx.beginPath();
             _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* p2northwestXY */])(p).y, INTERVAL, INTERVAL);
@@ -29184,6 +29195,18 @@ var Duckshogi = (function (_super) {
         var canvas = this.refs.myCanvas;
         this.drawSquares();
         this.drawPieces();
+        // for terminal
+        this.ctx.fillStyle = "#000000";
+        this.ctx.font = "80pt Arial";
+        this.ctx.textAlign = "center";
+        if (this.props.state.phase == "firstWin") {
+            this.ctx.fillText("You", canvas.width / 2, canvas.height / 3);
+            this.ctx.fillText("Win!", canvas.width / 2, canvas.height * 2 / 3);
+        }
+        if (this.props.state.phase == "secondWin") {
+            this.ctx.fillText("You", canvas.width / 2, canvas.height / 3);
+            this.ctx.fillText("lose!", canvas.width / 2, canvas.height * 2 / 3);
+        }
     };
     return Duckshogi;
 }(__WEBPACK_IMPORTED_MODULE_0_react__["Component"]));

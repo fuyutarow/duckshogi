@@ -61,9 +61,12 @@ export const p2ij4moving = ( n:number ) => {
     i: (n%W+W)%W==2? -1: (n%W+W)%W,
     j: -4<=n&&n<-1? -1: -1<=n&&n<2? 0: 1 }};
 
-export const willPosition = ( duck:number, p:number ) => canMove(duck)
-  .map( a => moving(a) )
-  .filter( a => (
-    0 <= ( p2ij(p).i + p2ij4moving(a).i ) && ( p2ij(p).i + p2ij4moving(a).i ) < 3 &&
-    0 <= ( p2ij(p).j + p2ij4moving(a).j ) && ( p2ij(p).j + p2ij4moving(a).j ) < 4 ))
-  .map( a => p+a )
+export const willPosition = ( duck:number, p:number ) => {
+  const d = duck>0? [duck,1]:[Math.abs(duck),-1]
+  return canMove(d[0])
+    .map( a => moving(a)*d[1] )
+    .filter( a => (
+      0 <= ( p2ij(p).i + p2ij4moving(a).i ) && ( p2ij(p).i + p2ij4moving(a).i ) < 3 &&
+      0 <= ( p2ij(p).j + p2ij4moving(a).j ) && ( p2ij(p).j + p2ij4moving(a).j ) < 4 ))
+    .map( a => p+a )
+  }

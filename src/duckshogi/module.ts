@@ -1,5 +1,5 @@
 import * as Immutable from 'immutable';
-import { PIECES, willPosition } from './util'
+import { PIECES, p2ij, willPosition } from './util'
 
 const W = 3;
 const H = 4;
@@ -47,16 +47,20 @@ export default function reducer(
   action: DuckshogiAction
 ): DuckshogiState {
   switch (action.type) {
-    case ActionTypes.CLICK:
-      if( state.phase == "waiting"){
-        if( state.board[action.clicked] > 0 && action.clicked != state.remarked ){
+
+    case ActionTypes.CLICK: switch( state.phase ){
+      case "waiting":
+        const sign = state.step%2 *2 *(-1) +1;
+        console.log(">>",state.board[action.clicked]*sign);
+        if( state.board[action.clicked]*sign > 0 && action.clicked != state.remarked ){
           const remarked = action.clicked;
+          console.log("rem ",remarked)
           return Object.assign( {}, state, { phase: "selecting", remarked: remarked } )
         }else{
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
         }
-      }
-      else if( state.phase == "selecting"){
+
+      case "selecting":
         const duck = state.board[state.remarked];
         if( willPosition( duck, state.remarked ).indexOf( action.clicked ) == -1 ){
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
@@ -65,11 +69,18 @@ export default function reducer(
         const newBoard = state.board
           .map( (a,idx) =>
             idx==state.remarked? 0:
-            idx==action.clicked? duck: a );
+            idx!=action.clicked? a:
+            Math.abs(duck)!=PIECES["Chick"]? duck:
+            duck==PIECES["Chick"]? (p2ij(action.clicked).j!=0? PIECES["Chick"]:PIECES["Hen"]):
+            (p2ij(action.clicked).j!=4? -PIECES["Chick"]:-PIECES["Hen"]) )
         let newRecord = state.record;
         newRecord.push( { predator:duck, from:state.remarked, to:action.clicked, prey:prey } )
-        return Object.assign( {}, state, { step: state.step+1, phase: "waiting", board: newBoard, record: newRecord, remarked: -100 } )
-      }
+        const newPhase =
+          state.record[state.record.length-1].prey==-1? "firstWin" :
+          state.record[state.record.length-1].prey==1? "secondWin" : "waiting"
+        return Object.assign( {}, state,
+          { step: state.step+1, phase: newPhase, board: newBoard, record: newRecord, remarked: -100 } )
+    }
 
     case ActionTypes.UNDO:
       if (state.step<=0){
