@@ -3,13 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { DuckshogiState, ActionDispatcher } from './module';
 import * as Immutable from 'immutable';
 
-const TPI = 2*Math.PI;
-const INTERVAL = 100;
-const R = INTERVAL/(Math.cos(TPI/12)*2);
-const W = 3;
-const H = 4;
-const MERGIN = 20;
-
+import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
 
 interface Props {
@@ -52,6 +46,7 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
     this.ctx.fillStyle = '#eeee66';
     this.ctx.fill();
+    if( p >= 12 ) return;
     const duck = this.props.state.board[p];
     willPosition(duck,p)
       .map( a => {
@@ -62,17 +57,16 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
 
   drawSquares = () => {
-    Immutable.Range(0,12).toArray()
+    Immutable.Range(0,18).toArray()
       .map( p => {
         this.ctx.beginPath();
         this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
-        this.ctx.fillStyle = '#eeeeee';
+        this.ctx.fillStyle = p<12? '#eeeeee':'#ffffff';
         this.ctx.fill();});
     this.remarkP(this.props.state.remarked);
     Immutable.Range(0,12).toArray()
       .map( p => {
         this.ctx.beginPath();
-
         this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
         this.ctx.lineWidth=4;
         this.ctx.stroke();});
@@ -80,16 +74,31 @@ export class Duckshogi extends React.Component<Props, {}> {
 
   drawPieces = () => {
     this.props.state.board
-    .map( (value,idx) =>  { return { idx:idx, v:value } })
-    .filter( a => a.v!=0 )
-    .map( a => {
-      switch( Math.abs(a.v) ){
-        case 1: this.ctx.fillStyle = '#ff4500'; break;
-        case 2: this.ctx.fillStyle = '#00bfff'; break;
-        case 4: this.ctx.fillStyle = '#ffff22'; break;
-        case 8: this.ctx.fillStyle = '#90ee90'; break;
-        default: this.ctx.fillStyle = '#ffffff';break; }
-        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, 30, a.v )});}
+      .map( (value,idx) =>  { return { idx:idx, v:value } })
+      .filter( a => a.v!=0 )
+      .map( a => {
+        switch( Math.abs(a.v) ){
+          case 1: this.ctx.fillStyle = '#ff4500'; break;
+          case 2: this.ctx.fillStyle = '#00bfff'; break;
+          case 4: this.ctx.fillStyle = '#ffff22'; break;
+          case 8: this.ctx.fillStyle = '#90ee90'; break; }
+          this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
+    const shift = 20;
+    this.props.state.pool
+      .map( (a,idx) => {
+        switch( idx%3 ){
+          case 0: this.ctx.fillStyle = '#00bfff'; break;
+          case 1: this.ctx.fillStyle = '#ffff22'; break;
+          case 2: this.ctx.fillStyle = '#90ee90'; break; }
+        if( idx < 3 ){
+          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -1 );
+          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -1 );
+        }
+        if( idx >= 3 ){
+          if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
+          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
+        }});
+    }
 
   render() {
     return (
@@ -103,8 +112,8 @@ export class Duckshogi extends React.Component<Props, {}> {
 
   componentDidMount() {
     const canvas = this.refs.myCanvas as HTMLCanvasElement;
-    canvas.width = MERGIN + W*INTERVAL + MERGIN;
-    canvas.height = MERGIN + H*INTERVAL + MERGIN;
+    canvas.width = W*INTERVAL + 2*MERGINX;
+    canvas.height = H*INTERVAL + 2*MERGINY;
 
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     this.drawSquares();
@@ -121,6 +130,7 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
+
 
 // for terminal
     this.ctx.fillStyle = "#000000";

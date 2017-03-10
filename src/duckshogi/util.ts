@@ -2,30 +2,43 @@ import * as Immutable from 'immutable';
 
 export const TPI = 2*Math.PI;
 export const INTERVAL = 100;
-export const R = INTERVAL/(Math.cos(TPI/12)*2);
 export const W = 3;
 export const H = 4;
-export const MERGIN = 20;
+export const R = 30;
+export const MERGINX = 20;
+export const MERGINY = 100;
 
 export const p2ij = ( p:number ) => {
   return {
     i: p%W,
     j: Math.floor(p/W) }};
 
-export const p2northwestXY = ( p:number) => {
-  return {
-    x: p2ij(p).i*INTERVAL + MERGIN,
-    y: p2ij(p).j*INTERVAL + MERGIN }};
+export const p2northwestXY = ( p:number) =>
+  p<12? {
+    x: p2ij(p).i*INTERVAL + MERGINX,
+    y: p2ij(p).j*INTERVAL + MERGINY } :
+  (12<=p && p<15)? {
+    x: p2ij(p).i*INTERVAL + MERGINX,
+    y: -INTERVAL + MERGINY } :
+  (15<=p && p<18)? {
+    x: p2ij(p).i*INTERVAL + MERGINX,
+    y: 4*INTERVAL + MERGINY } : {x:-100,y:-100};
 
-export const p2centerXY = ( p:number ) => {
-  return {
-    x: (p2ij(p).i+0.5)*INTERVAL + MERGIN,
-    y: (p2ij(p).j+0.5)*INTERVAL + MERGIN }};
+export const p2centerXY = ( p:number ) =>
+  p<12? {
+    x: (p2ij(p).i+0.5)*INTERVAL + MERGINX,
+    y: (p2ij(p).j+0.5)*INTERVAL + MERGINY } :
+  (12<=p && p<15)? {
+    x: (p2ij(p).i+0.5)*INTERVAL + MERGINX,
+    y: -0.5*INTERVAL + MERGINY } :
+  (15<=p && p<18)? {
+    x: (p2ij(p).i+0.5)*INTERVAL + MERGINX,
+    y: 4.5*INTERVAL + MERGINY } : {x:-100,y:-100};
 
 export const L2 = (x:number,y:number) => Math.sqrt( x*x + y*y );
 
 export const mouse2p = ( mouseX:number, mouseY:number) => {
-  return ( Immutable.Range(0,12).toArray()
+  return ( Immutable.Range(0,18).toArray()
     .map( a => p2centerXY(a) )
     .map( (a,idx) => Math.floor( L2( a.x-mouseX, a.y-mouseY )*1000 )*1000 +idx )
     .reduce( (a,b) => Math.min(a, b) )

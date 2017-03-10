@@ -1,11 +1,10 @@
 import * as Immutable from 'immutable';
-import { PIECES, p2ij, willPosition } from './util'
-
-const W = 3;
-const H = 4;
+import { W, H, PIECES, p2ij, willPosition } from './util'
+const log2 = ( x:number ) => x==2? 1: x==4? 2: x==8? 3: -100;
 
 export interface DuckshogiState {
   board: number[];
+  pool: number[];
   step: number;
   record: any[];
   remarked: number;
@@ -29,7 +28,6 @@ export class ActionTypes {
 }
 
 const INITIAL_STATE =  {
-  clicked: -100,
   remarked: -100,
   board: [
     -PIECES["Giraffe"], -PIECES["Lion"], -PIECES["Elephant"],
@@ -37,6 +35,7 @@ const INITIAL_STATE =  {
     0, PIECES["Chick"], 0,
     PIECES["Elephant"], PIECES["Lion"], PIECES["Giraffe"]
   ],
+  pool: [0,0,0,0,0,0], //opponent's Elephant, Giraffe, Chick and yours
   step: 0,
   record: [{ predator:0, from:-100, to:-100, prey:0 }],
   phase: "waiting",
@@ -50,10 +49,12 @@ export default function reducer(
 
     case ActionTypes.CLICK: switch( state.phase ){
       case "waiting":
+        if( state.step%2 + Math.floor((action.clicked-12)/3) == 1 && state.pool[action.clicked-12] > 0 ){
+          return Object.assign( {}, state, { phase: "selecting", remarked: action.clicked } )
+        }
         const sign = state.step%2 *2 *(-1) +1;
         if( state.board[action.clicked]*sign > 0 && action.clicked != state.remarked ){
-          const remarked = action.clicked;
-          return Object.assign( {}, state, { phase: "selecting", remarked: remarked } )
+          return Object.assign( {}, state, { phase: "selecting", remarked: action.clicked } )
         }else{
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
         }
@@ -61,13 +62,35 @@ export default function reducer(
       case "selecting":
         const duck = state.board[state.remarked];
         const prey = state.board[action.clicked];
-        console.log("d",duck,"p",prey)
-        if( willPosition( duck, state.remarked ).indexOf( action.clicked ) == -1 ){
-          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+        if( state.remarked>= 12 ){
+          const nobodySquares = state.board
+            .map( (v,k) => { return { k:k, v:v }})
+            .filter( a => a.v==0 )
+            .map( a => a.k )
+          if( nobodySquares.indexOf( action.clicked ) == -1 ){
+            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+          }
+          const commited: number = Math.pow(2,state.remarked%3+1) * (Math.floor((state.remarked-12)/3) *2 -1);
+          const commitBoard = state.board
+            .map( (a,idx) =>
+              idx==action.clicked? commited: a );
+          let commitRecord = state.record;
+          commitRecord.push( { predator:commited, from:state.remarked, to:action.clicked, prey:prey } );
+          const commitPool = state.pool
+            .map( (a,idx) => idx==state.remarked-12 ? a-1: a);
+          return Object.assign( {}, state,
+            { step: state.step+1, phase: "waiting", board: commitBoard, record: commitRecord, remarked: -100, pool: commitPool } )
+        }
+
+        if( state.remarked < 12 ){
+          if( willPosition( duck, state.remarked ).indexOf( action.clicked ) == -1 ){
+            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+          }
         }
         if( duck*prey > 0 ){
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
         }
+
         const newBoard = state.board
           .map( (a,idx) =>
             idx==state.remarked? 0:
@@ -76,12 +99,17 @@ export default function reducer(
             duck==PIECES["Chick"]? (p2ij(action.clicked).j!=0? PIECES["Chick"]:PIECES["Hen"]):
             (p2ij(action.clicked).j!=3? -PIECES["Chick"]:-PIECES["Hen"]) )
         let newRecord = state.record;
-        newRecord.push( { predator:duck, from:state.remarked, to:action.clicked, prey:prey } )
+        newRecord.push( { predator:duck, from:state.remarked, to:action.clicked, prey:prey } );
         const newPhase =
-          state.record[state.record.length-1].prey==-1? "firstWin" :
-          state.record[state.record.length-1].prey==1? "secondWin" : "waiting"
+          prey==-1? "firstWin" :
+          prey==1? "secondWin" : "waiting";
+        const newPool =
+          prey==0? state.pool :
+          state.pool
+            .map( (a,idx) =>
+              idx==(state.step+1)%2*3+log2(Math.abs(prey))-1 ? a+1: a);
         return Object.assign( {}, state,
-          { step: state.step+1, phase: newPhase, board: newBoard, record: newRecord, remarked: -100 } )
+          { step: state.step+1, phase: newPhase, board: newBoard, record: newRecord, remarked: -100, pool: newPool } )
     }
 
     case ActionTypes.UNDO:
@@ -90,11 +118,23 @@ export default function reducer(
       }
       let undoRecord = state.record;
       const lastRecord = undoRecord.pop();
+      console.log(lastRecord,state.pool)
       const undoBoard = state.board
         .map( (a,idx) =>
           idx==lastRecord.to? lastRecord.prey:
           idx==lastRecord.from? lastRecord.predator: a );
-      return Object.assign( {}, state, { step: state.step-1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100 } )
+      const undoPool =
+        lastRecord.from<12? (
+          state.pool
+            .map( (a,idx) => {
+              if( lastRecord.prey == 0 ) return a
+              if( lastRecord.prey > 0 ) return idx==log2(lastRecord.prey)-1 ? a-1:a;
+              if( lastRecord.prey < 0 ) return idx==log2(-lastRecord.prey)+2 ? a-1:a;})):
+        lastRecord.from>=12? (
+          state.pool
+            .map( (a,idx) => idx==lastRecord.from-12? a+1: a)): state.pool;
+      return Object.assign( {}, state,
+        { step: state.step-1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100, pool: undoPool } )
 
     default:
       return state;
