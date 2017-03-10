@@ -51,10 +51,8 @@ export default function reducer(
     case ActionTypes.CLICK: switch( state.phase ){
       case "waiting":
         const sign = state.step%2 *2 *(-1) +1;
-        console.log(">>",state.board[action.clicked]*sign);
         if( state.board[action.clicked]*sign > 0 && action.clicked != state.remarked ){
           const remarked = action.clicked;
-          console.log("rem ",remarked)
           return Object.assign( {}, state, { phase: "selecting", remarked: remarked } )
         }else{
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
@@ -62,17 +60,21 @@ export default function reducer(
 
       case "selecting":
         const duck = state.board[state.remarked];
+        const prey = state.board[action.clicked];
+        console.log("d",duck,"p",prey)
         if( willPosition( duck, state.remarked ).indexOf( action.clicked ) == -1 ){
           return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
         }
-        const prey = state.board[action.clicked];
+        if( duck*prey > 0 ){
+          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+        }
         const newBoard = state.board
           .map( (a,idx) =>
             idx==state.remarked? 0:
             idx!=action.clicked? a:
             Math.abs(duck)!=PIECES["Chick"]? duck:
             duck==PIECES["Chick"]? (p2ij(action.clicked).j!=0? PIECES["Chick"]:PIECES["Hen"]):
-            (p2ij(action.clicked).j!=4? -PIECES["Chick"]:-PIECES["Hen"]) )
+            (p2ij(action.clicked).j!=3? -PIECES["Chick"]:-PIECES["Hen"]) )
         let newRecord = state.record;
         newRecord.push( { predator:duck, from:state.remarked, to:action.clicked, prey:prey } )
         const newPhase =

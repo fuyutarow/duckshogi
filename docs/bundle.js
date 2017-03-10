@@ -15364,10 +15364,8 @@ function reducer(state, action) {
         case ActionTypes.CLICK: switch (state.phase) {
             case "waiting":
                 var sign = state.step % 2 * 2 * (-1) + 1;
-                console.log(">>", state.board[action.clicked] * sign);
                 if (state.board[action.clicked] * sign > 0 && action.clicked != state.remarked) {
                     var remarked = action.clicked;
-                    console.log("rem ", remarked);
                     return Object.assign({}, state, { phase: "selecting", remarked: remarked });
                 }
                 else {
@@ -15375,17 +15373,21 @@ function reducer(state, action) {
                 }
             case "selecting":
                 var duck_1 = state.board[state.remarked];
+                var prey = state.board[action.clicked];
+                console.log("d", duck_1, "p", prey);
                 if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["b" /* willPosition */])(duck_1, state.remarked).indexOf(action.clicked) == -1) {
                     return Object.assign({}, state, { phase: "waiting", remarked: -100 });
                 }
-                var prey = state.board[action.clicked];
+                if (duck_1 * prey > 0) {
+                    return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                }
                 var newBoard = state.board
                     .map(function (a, idx) {
                     return idx == state.remarked ? 0 :
                         idx != action.clicked ? a :
                             Math.abs(duck_1) != __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] ? duck_1 :
                                 duck_1 == __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["f" /* p2ij */])(action.clicked).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Hen"]) :
-                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["f" /* p2ij */])(action.clicked).j != 4 ? -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Hen"]);
+                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["f" /* p2ij */])(action.clicked).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["e" /* PIECES */]["Hen"]);
                 });
                 var newRecord = state.record;
                 newRecord.push({ predator: duck_1, from: state.remarked, to: action.clicked, prey: prey });
