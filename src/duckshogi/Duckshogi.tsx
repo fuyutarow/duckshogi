@@ -5,6 +5,9 @@ import * as Immutable from 'immutable';
 
 import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
+import Duckmaster from './duckshogi-ai';
+const AI = new Duckmaster;
+
 
 interface Props {
   state: DuckshogiState;
@@ -132,6 +135,15 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawSquares();
     this.drawPieces();
 
+// for AI
+    if( this.props.state.step%2 == 1 ){
+      AI.readState( this.props.state );
+      const move =AI.rand();
+      setTimeout( () =>
+        this.props.actions.execMove(move),
+        1000);
+    }
+
 // for terminal
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "80pt Arial";
@@ -145,4 +157,9 @@ export class Duckshogi extends React.Component<Props, {}> {
       this.ctx.fillText("lose!", canvas.width/2, canvas.height*2/3);
     }
   }
+
+  shouldComponentUpdate(){
+    return (this.props.state.phase=="firstWin" || this.props.state.phase=="secondWin")? false: true;
+  }
+
 }

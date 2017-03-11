@@ -1,6 +1,5 @@
 import * as Immutable from 'immutable';
-import { W, H, PIECES, p2ij, willPosition } from './util'
-const log2 = ( x:number ) => x==2? 1: x==4? 2: x==8? 3: -100;
+import { W, H, PIECES, p2ij, willPosition, log2 } from './util'
 
 export interface DuckshogiState {
   board: number[];
@@ -17,13 +16,14 @@ interface DuckshogiAction {
   to?: number;
   remarked?: number;
   clicked?: number;
+  move: any;
 }
 
 export class ActionTypes {
   static CLICK = 'duckshogi/click';
   static REMARK = 'duckshogi/remark';
   static MOVE = 'duckshogi/moove';
-  static BLUE = 'duckshogi/blue';
+  static EXEC_MOVE = 'duckshogi/execMove';
   static UNDO = 'duckshogi/undo';
 }
 
@@ -140,6 +140,29 @@ export default function reducer(
       return Object.assign( {}, state,
         { step: state.step-1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100, pool: undoPool } )
 
+    case ActionTypes.EXEC_MOVE:
+      let nextRecord = state.record;
+      nextRecord.push(action.move);
+      return Object.assign( {}, state, {
+        step: state.step+1,
+        phase: "waiting",
+        board: state.board
+          .map( (a,idx) =>
+            idx==action.move.from? 0:
+            idx==action.move.to? action.move.predator: a),
+        record: nextRecord,//this.record.concat(action.move),
+        remarked: -100,
+        pool: action.move.prey==0? state.pool: (
+          state.pool
+            .map( (amount,idx) =>
+              action.move.from<12? (
+                idx==(state.step+1)%2*3+log2(Math.abs(action.move.prey))-1 ? amount+1: amount
+              ):(
+                idx==action.from-12? amount-1: amount
+              ))
+          )
+        })
+
     default:
       return state;
   }
@@ -155,5 +178,8 @@ export class ActionDispatcher {
   }
   undo(){
     this.dispatch({ type: ActionTypes.UNDO });
+  }
+  execMove( move:any ){
+    this.dispatch({ type: ActionTypes.EXEC_MOVE, move: move });
   }
 }
