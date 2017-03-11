@@ -83,7 +83,7 @@ export class Duckshogi extends React.Component<Props, {}> {
         switch( Math.abs(a.v) ){
           case 1: this.ctx.fillStyle = '#ff4500'; break;
           case 2: this.ctx.fillStyle = '#039be5'; break;
-          case 4: this.ctx.fillStyle = '#ffff00'; break;
+          case 4: this.ctx.fillStyle = '#ffff22'; break;
           case 8: this.ctx.fillStyle = '#90ee90'; break;
           case 16: this.ctx.fillStyle = '#ff00aa'; break; }
         this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
@@ -91,20 +91,21 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.props.state.pool
       .map( (a,idx) => {
         switch( idx%3 ){
-          case 0: this.ctx.fillStyle = '#00bfff'; break;
+          case 0: this.ctx.fillStyle = '#039be5'; break;
           case 1: this.ctx.fillStyle = '#ffff22'; break;
           case 2: this.ctx.fillStyle = '#90ee90'; break; }
         if( idx < 3 ){
-          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -1 );
-          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -1 );
+          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -1 );
+          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -1 );
         }
         if( idx >= 3 ){
           if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
-          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
+          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX + shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
         }});
     }
 
   render() {
+    //console.log(this.props.state)
     return (
       <div>
         <h3>STEP: { this.props.state.step }</h3>
@@ -123,9 +124,11 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawSquares();
     this.drawPieces();
 
-    canvas.onmousedown = e => {
-      const p = mouse2p( e.offsetX, e.offsetY );
-      this.props.actions.click( p );
+    if( this.props.state.step%2 == 0 ){
+      canvas.onmousedown = e => {
+        const p = mouse2p( e.offsetX, e.offsetY );
+        this.props.actions.click( p );
+      }
     }
   }
 
@@ -144,6 +147,19 @@ export class Duckshogi extends React.Component<Props, {}> {
         1000);
     }
 
+/*
+    if(this.props.state.phase!="firstWin" && this.props.state.phase!="secondWin"){
+      if( this.props.state.step%2 == 1 ){
+        AI.readState( this.props.state );
+        const move =AI.rand();
+        setTimeout( () => {
+          //this.props.actions.execMove(move);
+          this.props.actions.click(move.from);
+          this.props.actions.click(move.to);
+        }, 1000);
+      }
+    }
+*/
 // for terminal
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "80pt Arial";

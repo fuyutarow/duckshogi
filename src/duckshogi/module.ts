@@ -145,22 +145,24 @@ export default function reducer(
       nextRecord.push(action.move);
       return Object.assign( {}, state, {
         step: state.step+1,
-        phase: "waiting",
-        board: state.board
+        phase: action.move.prey==-1? "firstWin" :
+          action.move.prey==1? "secondWin" : "waiting",
+        board:  state.board
           .map( (a,idx) =>
             idx==action.move.from? 0:
-            idx==action.move.to? action.move.predator: a),
+            idx!=action.move.to? a:
+            Math.abs(action.move.predator)!=PIECES["Chick"]? action.move.predator:
+            action.move.predator==PIECES["Chick"]? (p2ij(action.move.to).j!=0? PIECES["Chick"]:PIECES["Hen"]):
+            (p2ij(action.move.to).j!=3? -PIECES["Chick"]:-PIECES["Hen"])),
         record: nextRecord,//this.record.concat(action.move),
         remarked: -100,
-        pool: action.move.prey==0? state.pool: (
-          state.pool
-            .map( (amount,idx) =>
-              action.move.from<12? (
-                idx==(state.step+1)%2*3+log2(Math.abs(action.move.prey))-1 ? amount+1: amount
-              ):(
-                idx==action.from-12? amount-1: amount
-              ))
-          )
+        pool: state.pool
+          .map( (amount,idx) =>
+            action.move.from<12? (
+              action.move.prey==0? amount: ( idx==(state.step+1)%2*3+Math.min(log2(Math.abs(action.move.prey)),3)-1 ? amount+1: amount )
+            ):(
+              idx==action.move.from-12 ? amount-1: amount
+            ))
         })
 
     default:
