@@ -52,7 +52,7 @@ export class Duckshogi extends React.Component<Props, {}> {
       .map( a => {
         this.ctx.beginPath();
         this.ctx.rect( p2northwestXY(a).x, p2northwestXY(a).y, INTERVAL, INTERVAL );
-        this.ctx.fillStyle = '#6666ee';
+        this.ctx.fillStyle = '#9fa8da';
         this.ctx.fill();});
     }
 
@@ -79,10 +79,11 @@ export class Duckshogi extends React.Component<Props, {}> {
       .map( a => {
         switch( Math.abs(a.v) ){
           case 1: this.ctx.fillStyle = '#ff4500'; break;
-          case 2: this.ctx.fillStyle = '#00bfff'; break;
-          case 4: this.ctx.fillStyle = '#ffff22'; break;
-          case 8: this.ctx.fillStyle = '#90ee90'; break; }
-          this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
+          case 2: this.ctx.fillStyle = '#039be5'; break;
+          case 4: this.ctx.fillStyle = '#ffff00'; break;
+          case 8: this.ctx.fillStyle = '#90ee90'; break;
+          case 16: this.ctx.fillStyle = '#ff00aa'; break; }
+        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
     const shift = 20;
     this.props.state.pool
       .map( (a,idx) => {
@@ -130,7 +131,6 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
-
 
 // for terminal
     this.ctx.fillStyle = "#000000";

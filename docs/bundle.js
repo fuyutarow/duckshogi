@@ -15485,7 +15485,8 @@ function reducer(state, action) {
                 }
             case "selecting":
                 var duck_1 = state.board[state.remarked];
-                var prey_1 = state.board[action.clicked];
+                var captured = state.board[action.clicked];
+                var prey_1 = captured != __WEBPACK_IMPORTED_MODULE_0__util__["l" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_0__util__["l" /* PIECES */]["Chick"];
                 if (state.remarked >= 12) {
                     var nobodySquares = state.board
                         .map(function (v, k) { return { k: k, v: v }; })
@@ -15495,10 +15496,11 @@ function reducer(state, action) {
                         return Object.assign({}, state, { phase: "waiting", remarked: -100 });
                     }
                     var commited_1 = Math.pow(2, state.remarked % 3 + 1) * (Math.floor((state.remarked - 12) / 3) * 2 - 1);
+                    if (Math.abs(commited_1) == __WEBPACK_IMPORTED_MODULE_0__util__["l" /* PIECES */]['Chick'] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(action.clicked).j == state.step % 2 * 3) {
+                        return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                    }
                     var commitBoard = state.board
-                        .map(function (a, idx) {
-                        return idx == action.clicked ? commited_1 : a;
-                    });
+                        .map(function (a, i) { return i == action.clicked ? commited_1 : a; });
                     var commitRecord = state.record;
                     commitRecord.push({ predator: commited_1, from: state.remarked, to: action.clicked, prey: prey_1 });
                     var commitPool = state.pool
@@ -15538,7 +15540,6 @@ function reducer(state, action) {
             }
             var undoRecord = state.record;
             var lastRecord_1 = undoRecord.pop();
-            console.log(lastRecord_1, state.pool);
             var undoBoard = state.board
                 .map(function (a, idx) {
                 return idx == lastRecord_1.to ? lastRecord_1.prey :
@@ -29175,7 +29176,7 @@ var Duckshogi = (function (_super) {
                 .map(function (a) {
                 _this.ctx.beginPath();
                 _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(a).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(a).y, __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */]);
-                _this.ctx.fillStyle = '#6666ee';
+                _this.ctx.fillStyle = '#9fa8da';
                 _this.ctx.fill();
             });
         };
@@ -29206,13 +29207,16 @@ var Duckshogi = (function (_super) {
                         _this.ctx.fillStyle = '#ff4500';
                         break;
                     case 2:
-                        _this.ctx.fillStyle = '#00bfff';
+                        _this.ctx.fillStyle = '#039be5';
                         break;
                     case 4:
-                        _this.ctx.fillStyle = '#ffff22';
+                        _this.ctx.fillStyle = '#ffff00';
                         break;
                     case 8:
                         _this.ctx.fillStyle = '#90ee90';
+                        break;
+                    case 16:
+                        _this.ctx.fillStyle = '#ff00aa';
                         break;
                 }
                 _this.frenemy(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["e" /* p2centerXY */])(a.idx).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["e" /* p2centerXY */])(a.idx).y, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], a.v);
@@ -29253,6 +29257,7 @@ var Duckshogi = (function (_super) {
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
                 "STEP: ",
                 this.props.state.step),
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null, this.props.state.board),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null,
                 __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () { return _this.props.actions.undo(); } }, "UNDO")),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("canvas", { ref: "myCanvas" })));

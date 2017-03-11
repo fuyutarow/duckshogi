@@ -61,7 +61,8 @@ export default function reducer(
 
       case "selecting":
         const duck = state.board[state.remarked];
-        const prey = state.board[action.clicked];
+        const captured = state.board[action.clicked];
+        const prey = captured!=PIECES["Hen"]? captured: PIECES["Chick"];
         if( state.remarked>= 12 ){
           const nobodySquares = state.board
             .map( (v,k) => { return { k:k, v:v }})
@@ -70,10 +71,14 @@ export default function reducer(
           if( nobodySquares.indexOf( action.clicked ) == -1 ){
             return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
           }
+
           const commited: number = Math.pow(2,state.remarked%3+1) * (Math.floor((state.remarked-12)/3) *2 -1);
+          if( Math.abs(commited)==PIECES['Chick'] && p2ij(action.clicked).j==state.step%2*3 ){
+            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+          }
           const commitBoard = state.board
-            .map( (a,idx) =>
-              idx==action.clicked? commited: a );
+            .map( (a,i) => i==action.clicked? commited: a )
+
           let commitRecord = state.record;
           commitRecord.push( { predator:commited, from:state.remarked, to:action.clicked, prey:prey } );
           const commitPool = state.pool
@@ -118,7 +123,6 @@ export default function reducer(
       }
       let undoRecord = state.record;
       const lastRecord = undoRecord.pop();
-      console.log(lastRecord,state.pool)
       const undoBoard = state.board
         .map( (a,idx) =>
           idx==lastRecord.to? lastRecord.prey:
