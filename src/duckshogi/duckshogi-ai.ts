@@ -46,8 +46,6 @@ export default class Duckmaster {
       .reduce( (a,b) => a.concat(b) )
       .filter( a=> a.predator * a.prey <= 0 )
     const moves = board2moves.concat(pool2moves)
-    console.log(moves);
-    console.log(">>",moves[Math.floor(Math.random())*moves.length])
     return moves[Math.floor(Math.random()*moves.length)]
   }
 
