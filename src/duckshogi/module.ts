@@ -1,4 +1,6 @@
 import * as Immutable from 'immutable';
+import * as ObjectAssign from 'object-assign';
+
 import { W, H, PIECES, p2ij, willPosition, log2 } from './util'
 
 export interface DuckshogiState {
@@ -46,7 +48,7 @@ export default function reducer(
   action: DuckshogiAction
 ): DuckshogiState {
 
-  const execute = ( move:any) => Object.assign( {}, state, {
+  const execute = ( move:any ) => ObjectAssign( {}, state, {
     step: state.step+1,
     phase: move.prey==-1? "firstWin" :
       move.prey==1? "secondWin" : "waiting",
@@ -73,13 +75,13 @@ export default function reducer(
     case ActionTypes.CLICK: switch( state.phase ){
       case "waiting":
         if( state.step%2 + Math.floor((action.clicked-12)/3) == 1 && state.pool[action.clicked-12] > 0 ){
-          return Object.assign( {}, state, { phase: "selecting", remarked: action.clicked } )
+          return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } )
         }
         const sign = state.step%2 *2 *(-1) +1;
         if( state.board[action.clicked]*sign > 0 && action.clicked != state.remarked ){
-          return Object.assign( {}, state, { phase: "selecting", remarked: action.clicked } )
+          return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } )
         }else{
-          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
 
       case "selecting":
@@ -101,27 +103,27 @@ export default function reducer(
             .filter( a => a.v==0 )
             .map( a => a.k )
           if( nobodySquares.indexOf( move.to ) == -1 ){
-            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
           if( Math.abs( move.predator )==PIECES['Chick'] && p2ij(move.to).j==state.step%2*3 ){
-            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
           return execute(move);
         }
         if( move.from < 12 ){
           if( willPosition( move.predator, state.remarked ).indexOf( move.to ) == -1 ){
-            return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
         }
         if( move.predator*move.prey > 0 ){
-          return Object.assign( {}, state, { phase: "waiting", remarked: -100 } );
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
         return execute(move)
     }
 
     case ActionTypes.UNDO:
       if (state.step<=0){
-        return Object.assign({}, state, { step: 0 });
+        return ObjectAssign({}, state, { step: 0 });
       }
       let undoRecord = state.record;
       const lastRecord = undoRecord.pop();
@@ -143,7 +145,7 @@ export default function reducer(
              idx==boobyRecord.from-12? amount+1: amount
           ));
 
-      return Object.assign( {}, state,{
+      return ObjectAssign( {}, state,{
         step: state.step-2,
         phase: "waiting",
         board: state.board

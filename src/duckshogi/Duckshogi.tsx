@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { DuckshogiState, ActionDispatcher } from './module';
 import * as Immutable from 'immutable';
 
-import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY } from './util';
+import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY, PIECES } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
 import Duckmaster from './duckshogi-ai';
 const AI = new Duckmaster;
@@ -20,7 +20,7 @@ export class Duckshogi extends React.Component<Props, {}> {
   gameState: string;
   ctx: any;
 
-  frenemy = (x:number, y:number, r:number, f:number) => {
+  frenemy = ( x:number, y:number, r:number, f:number ) => {
     this.ctx.beginPath();
     if( f>0 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
@@ -87,6 +87,7 @@ export class Duckshogi extends React.Component<Props, {}> {
           case 8: this.ctx.fillStyle = '#90ee90'; break;
           case 16: this.ctx.fillStyle = '#ff00aa'; break; }
         this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
+
     const shift = 20;
     this.props.state.pool
       .map( (a,idx) => {
@@ -105,13 +106,14 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
 
   render() {
-    console.log(this.props.state)
     return (
       <div>
         <h3>STEP: { this.props.state.step }</h3>
-        <p><button onClick={ () => {
-          if( this.props.state.step%2 == 0 ) this.props.actions.undo();
-        }}>UNDO</button></p>
+        <p>
+          <button onClick={ () => {
+            if( this.props.state.step%2 == 0 ) this.props.actions.undo();
+          }}>UNDO</button>
+        </p>
         <canvas ref="myCanvas"/>
       </div>
     );
@@ -143,25 +145,13 @@ export class Duckshogi extends React.Component<Props, {}> {
 // for AI
     if( this.props.state.step%2 == 1 ){
       AI.readState( this.props.state );
-      const move =AI.rand();
+      const move = AI.reckless();
+      //const move = AI.coward();
       setTimeout( () =>
         this.props.actions.execMove(move),
         1000);
     }
 
-/*
-    if(this.props.state.phase!="firstWin" && this.props.state.phase!="secondWin"){
-      if( this.props.state.step%2 == 1 ){
-        AI.readState( this.props.state );
-        const move =AI.rand();
-        setTimeout( () => {
-          //this.props.actions.execMove(move);
-          this.props.actions.click(move.from);
-          this.props.actions.click(move.to);
-        }, 1000);
-      }
-    }
-*/
 // for terminal
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "80pt Arial";

@@ -15441,10 +15441,13 @@ function warning(message) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_object_assign__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_object_assign__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util__ = __webpack_require__(26);
 /* unused harmony export ActionTypes */
 /* harmony export (immutable) */ __webpack_exports__["b"] = reducer;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ActionDispatcher; });
+
 
 var ActionTypes = (function () {
     function ActionTypes() {
@@ -15460,10 +15463,10 @@ ActionTypes.UNDO = 'duckshogi/undo';
 var INITIAL_STATE = {
     remarked: -100,
     board: [
-        -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Elephant"],
-        0, -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"], 0,
-        0, __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"], 0,
-        __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Giraffe"]
+        -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Elephant"],
+        0, -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"], 0,
+        0, __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"], 0,
+        __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Giraffe"]
     ],
     pool: [0, 0, 0, 0, 0, 0],
     step: 0,
@@ -15472,111 +15475,103 @@ var INITIAL_STATE = {
 };
 function reducer(state, action) {
     if (state === void 0) { state = INITIAL_STATE; }
+    var execute = function (move) { return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, {
+        step: state.step + 1,
+        phase: move.prey == -1 ? "firstWin" :
+            move.prey == 1 ? "secondWin" : "waiting",
+        board: state.board
+            .map(function (a, idx) {
+            return idx == move.from ? 0 :
+                idx != move.to ? a :
+                    Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] ? move.predator :
+                        move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"]) :
+                            (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"]);
+        }),
+        record: state.record.concat(move),
+        remarked: -100,
+        pool: state.pool
+            .map(function (amount, idx) {
+            return move.from < 12 ? (move.prey == 0 ? amount : (idx == (state.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
+        })
+    }); };
     switch (action.type) {
         case ActionTypes.CLICK: switch (state.phase) {
             case "waiting":
                 if (state.step % 2 + Math.floor((action.clicked - 12) / 3) == 1 && state.pool[action.clicked - 12] > 0) {
-                    return Object.assign({}, state, { phase: "selecting", remarked: action.clicked });
+                    return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "selecting", remarked: action.clicked });
                 }
                 var sign = state.step % 2 * 2 * (-1) + 1;
                 if (state.board[action.clicked] * sign > 0 && action.clicked != state.remarked) {
-                    return Object.assign({}, state, { phase: "selecting", remarked: action.clicked });
+                    return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "selecting", remarked: action.clicked });
                 }
                 else {
-                    return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                    return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                 }
             case "selecting":
-                var duck_1 = state.board[state.remarked];
+                var duck = state.board[state.remarked];
                 var captured = state.board[action.clicked];
-                var prey_1 = captured != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"];
-                if (state.remarked >= 12) {
+                var move = {
+                    predator: state.remarked < 12 ? (state.board[state.remarked]) : (Math.pow(2, state.remarked % 3 + 1) * (Math.floor((state.remarked - 12) / 3) * 2 - 1)),
+                    from: state.remarked,
+                    to: action.clicked,
+                    prey: captured != __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"]
+                };
+                if (move.from >= 12) {
                     var nobodySquares = state.board
                         .map(function (v, k) { return { k: k, v: v }; })
                         .filter(function (a) { return a.v == 0; })
                         .map(function (a) { return a.k; });
-                    if (nobodySquares.indexOf(action.clicked) == -1) {
-                        return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                    if (nobodySquares.indexOf(move.to) == -1) {
+                        return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                     }
-                    var commited_1 = Math.pow(2, state.remarked % 3 + 1) * (Math.floor((state.remarked - 12) / 3) * 2 - 1);
-                    if (Math.abs(commited_1) == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]['Chick'] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(action.clicked).j == state.step % 2 * 3) {
-                        return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                    if (Math.abs(move.predator) == __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]['Chick'] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j == state.step % 2 * 3) {
+                        return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                     }
-                    var commitBoard = state.board
-                        .map(function (a, i) { return i == action.clicked ? commited_1 : a; });
-                    var commitRecord = state.record;
-                    commitRecord.push({ predator: commited_1, from: state.remarked, to: action.clicked, prey: prey_1 });
-                    var commitPool = state.pool
-                        .map(function (a, idx) { return idx == state.remarked - 12 ? a - 1 : a; });
-                    return Object.assign({}, state, { step: state.step + 1, phase: "waiting", board: commitBoard, record: commitRecord, remarked: -100, pool: commitPool });
+                    return execute(move);
                 }
-                if (state.remarked < 12) {
-                    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(duck_1, state.remarked).indexOf(action.clicked) == -1) {
-                        return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                if (move.from < 12) {
+                    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["d" /* willPosition */])(move.predator, state.remarked).indexOf(move.to) == -1) {
+                        return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                     }
                 }
-                if (duck_1 * prey_1 > 0) {
-                    return Object.assign({}, state, { phase: "waiting", remarked: -100 });
+                if (move.predator * move.prey > 0) {
+                    return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                 }
-                var newBoard = state.board
-                    .map(function (a, idx) {
-                    return idx == state.remarked ? 0 :
-                        idx != action.clicked ? a :
-                            Math.abs(duck_1) != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? duck_1 :
-                                duck_1 == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(action.clicked).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]) :
-                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(action.clicked).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]);
-                });
-                var newRecord = state.record;
-                newRecord.push({ predator: duck_1, from: state.remarked, to: action.clicked, prey: prey_1 });
-                var newPhase = prey_1 == -1 ? "firstWin" :
-                    prey_1 == 1 ? "secondWin" : "waiting";
-                var newPool = prey_1 == 0 ? state.pool :
-                    state.pool
-                        .map(function (a, idx) {
-                        return idx == (state.step + 1) % 2 * 3 + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(Math.abs(prey_1)) - 1 ? a + 1 : a;
-                    });
-                return Object.assign({}, state, { step: state.step + 1, phase: newPhase, board: newBoard, record: newRecord, remarked: -100, pool: newPool });
+                return execute(move);
         }
         case ActionTypes.UNDO:
             if (state.step <= 0) {
-                return Object.assign({}, state, { step: 0 });
+                return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { step: 0 });
             }
             var undoRecord = state.record;
             var lastRecord_1 = undoRecord.pop();
-            var undoBoard = state.board
-                .map(function (a, idx) {
-                return idx == lastRecord_1.to ? lastRecord_1.prey :
-                    idx == lastRecord_1.from ? lastRecord_1.predator : a;
+            var boobyRecord_1 = undoRecord.pop();
+            var lastPool = state.pool
+                .map(function (amount, idx) {
+                return lastRecord_1.from < 12 ? (lastRecord_1.prey == 0 ? amount : (idx == (state.step) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["n" /* log2 */])(Math.abs(lastRecord_1.prey)), 3) - 1 ? amount - 1 : amount)) : (idx == lastRecord_1.from - 12 ? amount + 1 : amount);
             });
-            var undoPool = lastRecord_1.from < 12 ? (state.pool
-                .map(function (a, idx) {
-                if (lastRecord_1.prey == 0)
-                    return a;
-                if (lastRecord_1.prey > 0)
-                    return idx == __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(lastRecord_1.prey) - 1 ? a - 1 : a;
-                if (lastRecord_1.prey < 0)
-                    return idx == __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(-lastRecord_1.prey) + 2 ? a - 1 : a;
-            })) :
-                lastRecord_1.from >= 12 ? (state.pool
-                    .map(function (a, idx) { return idx == lastRecord_1.from - 12 ? a + 1 : a; })) : state.pool;
-            return Object.assign({}, state, { step: state.step - 1, phase: "waiting", board: undoBoard, record: undoRecord, remarked: -100, pool: undoPool });
-        case ActionTypes.EXEC_MOVE:
-            var nextRecord = state.record;
-            nextRecord.push(action.move);
-            return Object.assign({}, state, {
-                step: state.step + 1,
+            var boobyPool = lastPool
+                .map(function (amount, idx) {
+                return boobyRecord_1.from < 12 ? (boobyRecord_1.prey == 0 ? amount : (idx == (state.step - 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["n" /* log2 */])(Math.abs(boobyRecord_1.prey)), 3) - 1 ? amount - 1 : amount)) : (idx == boobyRecord_1.from - 12 ? amount + 1 : amount);
+            });
+            return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, {
+                step: state.step - 2,
                 phase: "waiting",
                 board: state.board
                     .map(function (a, idx) {
-                    return idx == action.move.from ? 0 :
-                        idx == action.move.to ? action.move.predator : a;
+                    return idx == lastRecord_1.to ? lastRecord_1.prey :
+                        idx == lastRecord_1.from ? lastRecord_1.predator : a;
+                })
+                    .map(function (a, idx) {
+                    return idx == boobyRecord_1.to ? boobyRecord_1.prey :
+                        idx == boobyRecord_1.from ? boobyRecord_1.predator : a;
                 }),
-                record: nextRecord,
+                record: undoRecord,
                 remarked: -100,
-                pool: action.move.prey == 0 ? state.pool : (state.pool
-                    .map(function (amount, idx) {
-                    return action.move.from < 12 ? (idx == (state.step + 1) % 2 * 3 + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(Math.abs(action.move.prey)) - 1 ? amount + 1 : amount) : (idx == action.from - 12 ? amount - 1 : amount);
-                }))
+                pool: boobyPool,
             });
+        case ActionTypes.EXEC_MOVE:
+            return execute(action.move);
         default:
             return state;
     }
@@ -29140,6 +29135,34 @@ function symbolObservablePonyfill(root) {
 
 var Duckmaster = (function () {
     function Duckmaster() {
+        var _this = this;
+        this.genMoves = function (board, pool, step) {
+            var nobodySquares = board
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return a.v == 0; })
+                .map(function (a) { return a.k; });
+            var deadEnd4Chick = board
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(a.k).j == step % 2 * 3; })
+                .map(function (a) { return a.k; });
+            var pool2moves_ = _this.pool
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return a.k < 3 && a.v > 0; });
+            var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
+                .map(function (a) { return { predator: -Math.pow(2, a.k + 1), from: a.k + 12 }; })
+                .map(function (a) { return nobodySquares
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); }))
+                .filter(function (a) { return a.predator != -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? true : deadEnd4Chick.indexOf(a.to) == -1; });
+            var board2moves = _this.board
+                .map(function (v, k) { return { predator: v, from: k }; })
+                .filter(function (a) { return a.predator < 0; })
+                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); })
+                .filter(function (a) { return a.predator * a.prey <= 0; });
+            return board2moves.concat(pool2moves);
+        };
     }
     Duckmaster.prototype.readState = function (state) {
         this.board = state.board;
@@ -29149,36 +29172,121 @@ var Duckmaster = (function () {
         this.remarked = state.remarked;
         this.phase = this.phase;
     };
-    Duckmaster.prototype.rand = function () {
-        var _this = this;
-        var nobodySquares = this.board
-            .map(function (v, k) { return { k: k, v: v }; })
-            .filter(function (a) { return a.v == 0; })
-            .map(function (a) { return a.k; });
-        var deadEnd4Chick = this.board
-            .map(function (v, k) { return { k: k, v: v }; })
-            .filter(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(a.k).j == _this.step % 2 * 3; })
-            .map(function (a) { return a.k; });
-        var pool2moves_ = this.pool
-            .map(function (v, k) { return { k: k, v: v }; })
-            .filter(function (a) { return a.k < 3 && a.v > 0; });
-        var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
-            .map(function (a) { return { predator: -Math.pow(2, a.k + 1), from: a.k + 12 }; })
-            .map(function (a) { return nobodySquares
-            .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-            .reduce(function (a, b) { return a.concat(b); }))
-            .filter(function (a) { return a.predator != -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? true : deadEnd4Chick.indexOf(a.to) == -1; });
-        var board2moves = this.board
-            .map(function (v, k) { return { predator: v, from: k }; })
-            .filter(function (a) { return a.predator < 0; })
-            .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
-            .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-            .reduce(function (a, b) { return a.concat(b); })
-            .filter(function (a) { return a.predator * a.prey <= 0; });
-        var moves = board2moves.concat(pool2moves);
-        console.log(moves);
-        console.log(">>", moves[Math.floor(Math.random()) * moves.length]);
+    Duckmaster.prototype.random = function () {
+        var moves = this.genMoves(this.board, this.pool, this.step);
         return moves[Math.floor(Math.random() * moves.length)];
+    };
+    Duckmaster.prototype.reckless = function () {
+        var moves = this.genMoves(this.board, this.pool, this.step);
+        var eatLion = moves
+            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
+        if (eatLion.length == 0) {
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+        else {
+            return eatLion[0]; //[Math.floor(Math.random()*eatLion.length)];
+        }
+    };
+    Duckmaster.prototype.coward = function () {
+        var moves = this.genMoves(this.board, this.pool, this.step);
+        var eatLion = moves
+            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
+        var unsafeArea = this.board
+            .map(function (v, k) { return { predator: v, place: k }; })
+            .filter(function (a) { return a.predator > 0; })
+            .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.place); })
+            .reduce(function (a, b) { return a.concat(b); });
+        var safeMoves = moves
+            .filter(function (move) { return move.predator == -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"] ? unsafeArea.indexOf(move.to) == -1 : true; });
+        if (eatLion.length != 0) {
+            return eatLion[0];
+        }
+        else if (safeMoves.length != 0) {
+            return safeMoves[Math.floor(Math.random() * safeMoves.length)];
+        }
+        else {
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+    };
+    Duckmaster.prototype.developing = function () {
+        var _this = this;
+        var genMoves_ = function (board, pool, step) {
+            var nobodySquares = board
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return a.v == 0; })
+                .map(function (a) { return a.k; });
+            var deadEnd4Chick = board
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(a.k).j == step % 2 * 3; })
+                .map(function (a) { return a.k; });
+            var pool2moves_ = _this.pool
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return a.k > 2 && a.v > 0; });
+            var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
+                .map(function (a) { return { predator: Math.pow(2, a.k - 2), from: a.k + 12 }; })
+                .map(function (a) { return nobodySquares
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); }))
+                .filter(function (a) { return a.predator != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? true : deadEnd4Chick.indexOf(a.to) == -1; });
+            var board2moves = _this.board
+                .map(function (v, k) { return { predator: v, from: k }; })
+                .filter(function (a) { return a.predator > 0; })
+                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); })
+                .filter(function (a) { return a.predator * a.prey <= 0; });
+            return board2moves.concat(pool2moves);
+        };
+        var moves = this.genMoves(this.board, this.pool, this.step) ? this.genMoves(this.board, this.pool, this.step) : [];
+        var execute = function (move) {
+            return {
+                step: _this.step + 1,
+                phase: move.prey == -1 ? "firstWin" :
+                    move.prey == 1 ? "secondWin" : "waiting",
+                board: _this.board
+                    .map(function (a, idx) {
+                    return idx == move.from ? 0 :
+                        idx != move.to ? a :
+                            Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? move.predator :
+                                move.predator == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]) :
+                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]);
+                }),
+                pool: _this.pool
+                    .map(function (amount, idx) {
+                    return move.from < 12 ? (move.prey == 0 ? amount : (idx == (_this.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
+                })
+            };
+        };
+        var nextStates = moves
+            .map(function (move, idx) { return { idxOfMoves: idx, state: execute(move), myMove: move }; });
+        var enemyMoves_ = nextStates
+            .map(function (a) {
+            return {
+                idxOfMoves: a.idxOfMoves,
+                myMove: a.myMove,
+                enemyMove: genMoves_(a.state.board, a.state.pool, a.state.step)
+                    .filter(function (m) { return m.prey == -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; })
+            };
+        })
+            .filter(function (a) { return a.enemyMove.length > 0; });
+        //console.log(enemyMoves_)
+        var deadEnd = enemyMoves_
+            .map(function (a) { return a.idxOfMoves; });
+        //.map( a => moves);
+        console.log(moves); //deadEnd)
+        var runaways = moves
+            .filter(function (a, idx) { return deadEnd.indexOf(idx) == -1; });
+        var eatLion = moves
+            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
+        if (eatLion.length != 0) {
+            return eatLion[0];
+        }
+        else if (runaways.length != 0) {
+            return runaways[Math.floor(Math.random() * runaways.length)];
+        }
+        else {
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
     };
     return Duckmaster;
 }());
@@ -29291,7 +29399,7 @@ var Duckshogi = (function (_super) {
                         _this.ctx.fillStyle = '#039be5';
                         break;
                     case 4:
-                        _this.ctx.fillStyle = '#ffff00';
+                        _this.ctx.fillStyle = '#ffff22';
                         break;
                     case 8:
                         _this.ctx.fillStyle = '#90ee90';
@@ -29307,7 +29415,7 @@ var Duckshogi = (function (_super) {
                 .map(function (a, idx) {
                 switch (idx % 3) {
                     case 0:
-                        _this.ctx.fillStyle = '#00bfff';
+                        _this.ctx.fillStyle = '#039be5';
                         break;
                     case 1:
                         _this.ctx.fillStyle = '#ffff22';
@@ -29318,15 +29426,15 @@ var Duckshogi = (function (_super) {
                 }
                 if (idx < 3) {
                     if (a >= 1)
-                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], -1);
-                    if (a >= 2)
                         _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] + shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], -1);
+                    if (a >= 2)
+                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], -1);
                 }
                 if (idx >= 3) {
                     if (a >= 1)
                         _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], 1);
                     if (a >= 2)
-                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], 1);
+                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] + shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], 1);
                 }
             });
         };
@@ -29339,7 +29447,10 @@ var Duckshogi = (function (_super) {
                 "STEP: ",
                 this.props.state.step),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null,
-                __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () { return _this.props.actions.undo(); } }, "UNDO")),
+                __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () {
+                        if (_this.props.state.step % 2 == 0)
+                            _this.props.actions.undo();
+                    } }, "UNDO")),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("canvas", { ref: "myCanvas" })));
     };
     Duckshogi.prototype.componentDidMount = function () {
@@ -29350,10 +29461,12 @@ var Duckshogi = (function (_super) {
         this.ctx = canvas.getContext('2d');
         this.drawSquares();
         this.drawPieces();
-        canvas.onmousedown = function (e) {
-            var p = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["k" /* mouse2p */])(e.offsetX, e.offsetY);
-            _this.props.actions.click(p);
-        };
+        if (this.props.state.step % 2 == 0) {
+            canvas.onmousedown = function (e) {
+                var p = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["k" /* mouse2p */])(e.offsetX, e.offsetY);
+                _this.props.actions.click(p);
+            };
+        }
     };
     Duckshogi.prototype.componentDidUpdate = function () {
         var _this = this;
@@ -29363,7 +29476,8 @@ var Duckshogi = (function (_super) {
         // for AI
         if (this.props.state.step % 2 == 1) {
             AI.readState(this.props.state);
-            var move_1 = AI.rand();
+            var move_1 = AI.reckless();
+            //const move = AI.coward();
             setTimeout(function () {
                 return _this.props.actions.execMove(move_1);
             }, 1000);
