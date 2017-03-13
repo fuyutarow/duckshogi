@@ -19,7 +19,34 @@ export class Duckshogi extends React.Component<Props, {}> {
   gameState: string;
   ctx: any;
 
-  frenemy = ( x:number, y:number, r:number, f:number ) => {
+  drawLetter = ( x:number, y:number, f:number, s:string ) => {
+    this.ctx.save();
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = "12pt Arial";
+    this.ctx.textAlign = "center";
+    const duck =
+      s=="board"? Math.abs(f):
+      s=="pool"? Math.abs(f): "";
+    const letter =
+      duck==PIECES["Lion"]? "米":
+      duck==PIECES["Elephant"]? "✕":
+      duck==PIECES["Giraffe"]? "十":
+      duck==PIECES["Chick"]? "^":
+      duck==PIECES["Hen"]? "木":"";
+    if( s=="board" && Math.abs(f)==PIECES["Hen"] ) f=-f;
+    if( f>0 ){
+      this.ctx.fillText( letter, x, y );
+      this.ctx.restore();
+    }
+    if( f<0 ){
+      this.ctx.translate( x, y )
+      this.ctx.rotate( TPI/2 );
+      this.ctx.fillText( letter, 0, 0 );
+      this.ctx.restore();
+    }
+  }
+
+  frenemy = ( x:number, y:number, r:number, f:number, s:string  ) => {
     this.ctx.beginPath();
     if( f>0 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
@@ -39,7 +66,9 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.lineWidth=2;
-    this.ctx.stroke();};
+    this.ctx.stroke();
+    this.drawLetter( x, y, f, s );
+  };
 
   remarkP = ( p:number ) => {
     const sign = this.props.state.step %2 *2 *(-1) +1;
@@ -88,7 +117,8 @@ export class Duckshogi extends React.Component<Props, {}> {
           case PIECES["Giraffe"]: this.ctx.fillStyle = '#ffff22'; break;
           case PIECES["Chick"]: this.ctx.fillStyle = '#90ee90'; break;
           case PIECES["Hen"]: this.ctx.fillStyle = '#ee00aa'; break; }
-        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
+        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v, "board" );
+        });
 
     const shift = 20;
     this.props.state.pool
@@ -98,12 +128,12 @@ export class Duckshogi extends React.Component<Props, {}> {
           case 1: this.ctx.fillStyle = '#ffff22'; break;
           case 2: this.ctx.fillStyle = '#90ee90'; break; }
         if( idx < 3 ){
-          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -1 );
-          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -1 );
+          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -Math.pow(2,idx+1), "pool" );
+          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -Math.pow(2,idx+1), "pool" );
         }
         if( idx >= 3 ){
-          if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
-          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX + shift/2, 1.5*MERGINY + INTERVAL*H, R, 1 );
+          if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
+          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX + shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
         }});
     }
 

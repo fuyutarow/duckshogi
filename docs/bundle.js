@@ -3452,23 +3452,23 @@ module.exports = SyntheticUIEvent;
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_immutable__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TPI; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return INTERVAL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return W; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return H; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return TPI; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return INTERVAL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return W; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return H; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return R; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return MERGINX; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return MERGINY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return MERGINX; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return MERGINY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return p2ij; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return log2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return p2northwestXY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return p2northwestXY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return p2centerXY; });
 /* unused harmony export L2 */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return mouse2p; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return PIECES; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PIECES; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return SCORES; });
 /* unused harmony export p2ij4moving */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return willPosition; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return willPosition; });
 
 var TPI = 2 * Math.PI;
 var INTERVAL = 100;
@@ -15474,10 +15474,10 @@ ActionTypes.UNDO = 'duckshogi/undo';
 var INITIAL_STATE = {
     remarked: -100,
     board: [
-        -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Elephant"],
-        0, -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"], 0,
-        0, __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"], 0,
-        __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Giraffe"]
+        -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Elephant"],
+        0, -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"], 0,
+        0, __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"], 0,
+        __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Giraffe"]
     ],
     pool: [0, 0, 0, 0, 0, 0],
     step: 0,
@@ -15510,7 +15510,7 @@ function reducer(state, action) {
             .filter(function (a) { return world.step % 2 == 0 ? a.predator > 0 : a.predator < 0; });
         var board2moves = board2moves_.length < 2 ? [] :
             board2moves_
-                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["d" /* willPosition */])(a.predator, a.from)
+                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["e" /* willPosition */])(a.predator, a.from)
                 .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
                 .reduce(function (a, b) { return a.concat(b); })
                 .filter(function (a) { return a.predator * a.prey <= 0; });
@@ -15525,9 +15525,9 @@ function reducer(state, action) {
                     idx != move.to ? a :
                         move.from >= 12 ? move.predator :
                             // for promotion
-                            Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] ? move.predator :
-                                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"]) :
-                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"]);
+                            Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"] ? move.predator :
+                                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Hen"]) :
+                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Hen"]);
             }),
             record: world.record.concat(move),
             remarked: -100,
@@ -15538,11 +15538,11 @@ function reducer(state, action) {
         };
     };
     var judgePhase = function (move, world) {
-        return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] ? "firstWin" :
-            move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] ? "secondWin" :
+        return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"] ? "firstWin" :
+            move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"] ? "secondWin" :
                 // for try rule
-                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 0 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"]; }).length == 0 ? "firstWin" :
-                    move.predator == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 3 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"]; }).length == 0 ? "secondWin" :
+                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 0 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"]; }).length == 0 ? "firstWin" :
+                    move.predator == -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 3 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Lion"]; }).length == 0 ? "secondWin" :
                         "waiting";
     };
     var execute = function (move, world) {
@@ -15568,7 +15568,7 @@ function reducer(state, action) {
                     predator: state.remarked < 12 ? (state.board[state.remarked]) : (Math.pow(2, state.remarked % 3 + 1) * (Math.floor((state.remarked - 12) / 3) * 2 - 1)),
                     from: state.remarked,
                     to: action.clicked,
-                    prey: captured != __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"]
+                    prey: captured != __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_1__util__["a" /* PIECES */]["Chick"]
                 };
                 if (move.from >= 12) {
                     var nobodySquares = state.board
@@ -15581,7 +15581,7 @@ function reducer(state, action) {
                     return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, execute(move, state));
                 }
                 if (move.from < 12) {
-                    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["d" /* willPosition */])(move.predator, state.remarked).indexOf(move.to) == -1) {
+                    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["e" /* willPosition */])(move.predator, state.remarked).indexOf(move.to) == -1) {
                         return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                     }
                 }
@@ -29215,7 +29215,7 @@ var Duckmaster = (function () {
                 .filter(function (a) { return world.step % 2 == 0 ? a.predator > 0 : a.predator < 0; });
             var board2moves = board2moves_.length < 2 ? [] :
                 board2moves_
-                    .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
+                    .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["e" /* willPosition */])(a.predator, a.from)
                     .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
                     .reduce(function (a, b) { return a.concat(b); })
                     .filter(function (a) { return a.predator * a.prey <= 0; });
@@ -29229,9 +29229,9 @@ var Duckmaster = (function () {
                     return idx == move.from ? 0 :
                         idx != move.to ? a :
                             move.from >= 12 ? move.predator :
-                                Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? move.predator :
-                                    move.predator == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"]) :
-                                        (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"]);
+                                Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] ? move.predator :
+                                    move.predator == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Hen"]) :
+                                        (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Hen"]);
                 }),
                 pool: world.pool
                     .map(function (amount, idx) {
@@ -29243,18 +29243,18 @@ var Duckmaster = (function () {
             var boardScore = function (board) { return board
                 .map(function (v, k) { return { k: k, v: v }; })
                 .filter(function (a) { return a.v >= -1; })
-                .map(function (a) { return (a.v == -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 3 ? 2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
-                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 0 ? -2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
-                    a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Elephant"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Elephant"] :
-                        a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Giraffe"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Giraffe"] :
-                            a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Chick"] :
-                                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Hen"] : 0); })
+                .map(function (a) { return (a.v == -__WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 3 ? 2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
+                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 0 ? -2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
+                    a.v == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Elephant"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Elephant"] :
+                        a.v == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Giraffe"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Giraffe"] :
+                            a.v == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Chick"] :
+                                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Hen"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Hen"] : 0); })
                 .reduce(function (a, b) { return a + b; }); };
             var poolScore = function (pool) { return pool
                 .filter(function (a, idx) { return idx < 3; })
-                .map(function (amount, idx) { return (Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Elephant"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["EinPool"] :
-                Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Giraffe"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["GinPool"] :
-                    Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["CinPool"] : 0); })
+                .map(function (amount, idx) { return (Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Elephant"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["EinPool"] :
+                Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Giraffe"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["GinPool"] :
+                    Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Chick"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["CinPool"] : 0); })
                 .reduce(function (a, b) { return a + b; }); };
             return boardScore(world.board) + poolScore(world.pool);
         };
@@ -29269,7 +29269,7 @@ var Duckmaster = (function () {
     Duckmaster.prototype.reckless = function () {
         var moves = this.genMoves(this.world);
         var eatLion = moves
-            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"]; });
+            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECES */]["Lion"]; });
         if (eatLion.length == 0) {
             return moves[Math.floor(Math.random() * moves.length)];
         }
@@ -29359,58 +29359,84 @@ var Duckshogi = (function (_super) {
     __extends(Duckshogi, _super);
     function Duckshogi() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.frenemy = function (x, y, r, f) {
+        _this.drawLetter = function (x, y, f, s) {
+            _this.ctx.save();
+            _this.ctx.fillStyle = "#000000";
+            _this.ctx.font = "12pt Arial";
+            _this.ctx.textAlign = "center";
+            var duck = s == "board" ? Math.abs(f) :
+                s == "pool" ? Math.abs(f) : "";
+            var letter = duck == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Lion"] ? "米" :
+                duck == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Elephant"] ? "✕" :
+                    duck == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Giraffe"] ? "十" :
+                        duck == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Chick"] ? "^" :
+                            duck == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Hen"] ? "木" : "";
+            if (s == "board" && Math.abs(f) == __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Hen"])
+                f = -f;
+            if (f > 0) {
+                _this.ctx.fillText(letter, x, y);
+                _this.ctx.restore();
+            }
+            if (f < 0) {
+                _this.ctx.translate(x, y);
+                _this.ctx.rotate(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 2);
+                _this.ctx.fillText(letter, 0, 0);
+                _this.ctx.restore();
+            }
+        };
+        _this.frenemy = function (x, y, r, f, s) {
             _this.ctx.beginPath();
             if (f > 0) {
-                _this.ctx.moveTo(x - r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y - r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                _this.ctx.moveTo(x - r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y - r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 [1, 2, 4, 5].map(function (i) {
-                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 - __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 - __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 - __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 - __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 });
             }
             else if (f < 0) {
-                _this.ctx.moveTo(x + r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y + r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                _this.ctx.moveTo(x + r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y + r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 [1, 2, 4, 5].map(function (i) {
-                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 });
             }
             else {
-                _this.ctx.moveTo(x + r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y + r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                _this.ctx.moveTo(x + r * Math.cos(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y + r * Math.sin(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 [1, 2, 3, 4, 5].map(function (i) {
-                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["a" /* TPI */] / 4));
+                    _this.ctx.lineTo(x + r * Math.cos(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4), y + r * Math.sin(i * __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 6 + __WEBPACK_IMPORTED_MODULE_2__util__["b" /* TPI */] / 4));
                 });
             }
             _this.ctx.closePath();
             _this.ctx.fill();
             _this.ctx.lineWidth = 2;
             _this.ctx.stroke();
+            _this.drawLetter(x, y, f, s);
         };
         _this.remarkP = function (p) {
             var sign = _this.props.state.step % 2 * 2 * (-1) + 1;
             if (_this.props.state.board[p] * sign <= 0)
                 return;
             _this.ctx.beginPath();
-            _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */]);
+            _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */]);
             _this.ctx.fillStyle = '#eeee66';
             _this.ctx.fill();
             if (p >= 12)
                 return;
             var duck = _this.props.state.board[p];
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["d" /* willPosition */])(duck, p)
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["e" /* willPosition */])(duck, p)
                 .map(function (a) {
                 _this.ctx.beginPath();
-                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(a).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(a).y, __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */]);
+                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(a).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(a).y, __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */]);
                 _this.ctx.fillStyle = '#9fa8da';
                 _this.ctx.fill();
             });
         };
         _this.drawSquares = function () {
             _this.ctx.fillStyle = '#ffffff';
-            _this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */]);
+            _this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["h" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */]);
             _this.ctx.fill();
             __WEBPACK_IMPORTED_MODULE_1_immutable__["Range"](0, 18).toArray()
                 .map(function (p) {
                 _this.ctx.beginPath();
-                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */]);
+                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */]);
                 _this.ctx.fillStyle = p < 12 ? '#eeeeee' : '#ffffff';
                 _this.ctx.fill();
             });
@@ -29418,7 +29444,7 @@ var Duckshogi = (function (_super) {
             __WEBPACK_IMPORTED_MODULE_1_immutable__["Range"](0, 12).toArray()
                 .map(function (p) {
                 _this.ctx.beginPath();
-                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["b" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */]);
+                _this.ctx.rect(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["c" /* p2northwestXY */])(p).y, __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */], __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */]);
                 _this.ctx.lineWidth = 4;
                 _this.ctx.stroke();
             });
@@ -29429,23 +29455,23 @@ var Duckshogi = (function (_super) {
                 .filter(function (a) { return a.v != 0; })
                 .map(function (a) {
                 switch (Math.abs(a.v)) {
-                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Lion"]:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Lion"]:
                         _this.ctx.fillStyle = '#ff4500';
                         break;
-                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Elephant"]:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Elephant"]:
                         _this.ctx.fillStyle = '#039be5';
                         break;
-                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Giraffe"]:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Giraffe"]:
                         _this.ctx.fillStyle = '#ffff22';
                         break;
-                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Chick"]:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Chick"]:
                         _this.ctx.fillStyle = '#90ee90';
                         break;
-                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Hen"]:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["a" /* PIECES */]["Hen"]:
                         _this.ctx.fillStyle = '#ee00aa';
                         break;
                 }
-                _this.frenemy(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).y, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], a.v);
+                _this.frenemy(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).y, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], a.v, "board");
             });
             var shift = 20;
             _this.props.state.pool
@@ -29463,15 +29489,15 @@ var Duckshogi = (function (_super) {
                 }
                 if (idx < 3) {
                     if (a >= 1)
-                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] + shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -1);
+                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */] + shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -Math.pow(2, idx + 1), "pool");
                     if (a >= 2)
-                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -1);
+                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -Math.pow(2, idx + 1), "pool");
                 }
                 if (idx >= 3) {
                     if (a >= 1)
-                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], 1);
+                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], Math.pow(2, idx - 2), "pool");
                     if (a >= 2)
-                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] + shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], 1);
+                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */] + shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], Math.pow(2, idx - 2), "pool");
                 }
             });
         };
@@ -29493,8 +29519,8 @@ var Duckshogi = (function (_super) {
     Duckshogi.prototype.componentDidMount = function () {
         var _this = this;
         var canvas = this.refs.myCanvas;
-        canvas.width = __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */];
-        canvas.height = __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */];
+        canvas.width = __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */];
+        canvas.height = __WEBPACK_IMPORTED_MODULE_2__util__["h" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */];
         this.ctx = canvas.getContext('2d');
         this.drawSquares();
         this.drawPieces();
@@ -29513,7 +29539,7 @@ var Duckshogi = (function (_super) {
         // for AI
         if (this.props.state.step % 2 == 1 && this.props.state.phase == "waiting") {
             this.ctx.fillStyle = 'rgba( 120, 120, 20, 0.2 )';
-            this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */]);
+            this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["h" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["d" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */]);
             this.ctx.fill();
             AI.readWorld(this.props.state);
             var move_1 = AI.minimax();
