@@ -3454,18 +3454,19 @@ module.exports = SyntheticUIEvent;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_immutable__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TPI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return INTERVAL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return W; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return H; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return R; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return MERGINX; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return MERGINY; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return p2ij; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return W; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return H; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return R; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return MERGINX; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return MERGINY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return p2ij; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return log2; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return p2northwestXY; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return p2centerXY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return p2centerXY; });
 /* unused harmony export L2 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return mouse2p; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return PIECES; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return mouse2p; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return PIECES; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return SCORES; });
 /* unused harmony export p2ij4moving */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return willPosition; });
 
@@ -3525,6 +3526,16 @@ var PIECES = {
     "Giraffe": 4,
     "Chick": 8,
     "Hen": 16,
+};
+var SCORES = {
+    "Lion": 100,
+    "Elephant": 5,
+    "Giraffe": 5,
+    "Chick": 4,
+    "Hen": 16,
+    "EinPool": 3,
+    "GinPool": 3,
+    "CinPool": 1,
 };
 var moving = function (s) {
     return s == "northwest" ? -1 - W :
@@ -15463,10 +15474,10 @@ ActionTypes.UNDO = 'duckshogi/undo';
 var INITIAL_STATE = {
     remarked: -100,
     board: [
-        -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Elephant"],
-        0, -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"], 0,
-        0, __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"], 0,
-        __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Giraffe"]
+        -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Giraffe"], -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"], -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Elephant"],
+        0, -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"], 0,
+        0, __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"], 0,
+        __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Elephant"], __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"], __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Giraffe"]
     ],
     pool: [0, 0, 0, 0, 0, 0],
     step: 0,
@@ -15475,25 +15486,68 @@ var INITIAL_STATE = {
 };
 function reducer(state, action) {
     if (state === void 0) { state = INITIAL_STATE; }
-    var execute = function (move) { return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, {
-        step: state.step + 1,
-        phase: move.prey == -1 ? "firstWin" :
-            move.prey == 1 ? "secondWin" : "waiting",
-        board: state.board
-            .map(function (a, idx) {
-            return idx == move.from ? 0 :
-                idx != move.to ? a :
-                    Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] ? move.predator :
-                        move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"]) :
-                            (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"]);
-        }),
-        record: state.record.concat(move),
-        remarked: -100,
-        pool: state.pool
-            .map(function (amount, idx) {
-            return move.from < 12 ? (move.prey == 0 ? amount : (idx == (state.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
+    var genMoves = function (world) {
+        var sign = Math.pow(-1, world.step % 2);
+        var nobodySquares = world.board
+            .map(function (v, k) { return { k: k, v: v }; })
+            .filter(function (a) { return a.v == 0; })
+            .map(function (a) { return a.k; });
+        var pool2moves_ = world.pool
+            .map(function (v, k) { return { k: k, v: v }; })
+            .filter(function (a) { return world.step % 2 == 0 ? (a.k > 2 && a.v > 0) : (a.k < 3 && a.v > 0); });
+        var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
+            .map(function (a) {
+            return {
+                predator: (world.step % 2 == 0 ? Math.pow(2, a.k - 2) : -Math.pow(2, a.k + 1)),
+                from: a.k + 12
+            };
         })
-    }); };
+            .map(function (a) { return nobodySquares
+            .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
+            .reduce(function (a, b) { return a.concat(b); }));
+        var board2moves_ = world.board
+            .map(function (v, k) { return { predator: v, from: k }; })
+            .filter(function (a) { return world.step % 2 == 0 ? a.predator > 0 : a.predator < 0; });
+        var board2moves = board2moves_.length < 2 ? [] :
+            board2moves_
+                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["d" /* willPosition */])(a.predator, a.from)
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); })
+                .filter(function (a) { return a.predator * a.prey <= 0; });
+        return board2moves.concat(pool2moves);
+    };
+    var execute_ = function (move, world) {
+        return {
+            step: world.step + 1,
+            board: world.board
+                .map(function (a, idx) {
+                return idx == move.from ? 0 :
+                    idx != move.to ? a :
+                        move.from >= 12 ? move.predator :
+                            // for promotion
+                            Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] ? move.predator :
+                                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"]) :
+                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"]);
+            }),
+            record: world.record.concat(move),
+            remarked: -100,
+            pool: world.pool
+                .map(function (amount, idx) {
+                return move.from < 12 ? (move.prey == 0 ? amount : (idx == (world.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
+            })
+        };
+    };
+    var judgePhase = function (move, world) {
+        return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] ? "firstWin" :
+            move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] ? "secondWin" :
+                // for try rule
+                move.predator == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 0 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"]; }).length == 0 ? "firstWin" :
+                    move.predator == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["m" /* p2ij */])(move.to).j == 3 && genMoves(execute_(move, world)).filter(function (move) { return move.prey == -__WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Lion"]; }).length == 0 ? "secondWin" :
+                        "waiting";
+    };
+    var execute = function (move, world) {
+        return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, execute_(move, world), { phase: judgePhase(move, world) });
+    };
     switch (action.type) {
         case ActionTypes.CLICK: switch (state.phase) {
             case "waiting":
@@ -15514,7 +15568,7 @@ function reducer(state, action) {
                     predator: state.remarked < 12 ? (state.board[state.remarked]) : (Math.pow(2, state.remarked % 3 + 1) * (Math.floor((state.remarked - 12) / 3) * 2 - 1)),
                     from: state.remarked,
                     to: action.clicked,
-                    prey: captured != __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]["Chick"]
+                    prey: captured != __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Hen"] ? captured : __WEBPACK_IMPORTED_MODULE_1__util__["i" /* PIECES */]["Chick"]
                 };
                 if (move.from >= 12) {
                     var nobodySquares = state.board
@@ -15524,10 +15578,7 @@ function reducer(state, action) {
                     if (nobodySquares.indexOf(move.to) == -1) {
                         return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                     }
-                    if (Math.abs(move.predator) == __WEBPACK_IMPORTED_MODULE_1__util__["m" /* PIECES */]['Chick'] && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["l" /* p2ij */])(move.to).j == state.step % 2 * 3) {
-                        return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
-                    }
-                    return execute(move);
+                    return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, execute(move, state));
                 }
                 if (move.from < 12) {
                     if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__util__["d" /* willPosition */])(move.predator, state.remarked).indexOf(move.to) == -1) {
@@ -15537,7 +15588,7 @@ function reducer(state, action) {
                 if (move.predator * move.prey > 0) {
                     return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "waiting", remarked: -100 });
                 }
-                return execute(move);
+                return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, execute(move, state));
         }
         case ActionTypes.UNDO:
             if (state.step <= 0) {
@@ -15571,7 +15622,12 @@ function reducer(state, action) {
                 pool: boobyPool,
             });
         case ActionTypes.EXEC_MOVE:
-            return execute(action.move);
+            try {
+                return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, execute(action.move, state));
+            }
+            catch (e) {
+                return __WEBPACK_IMPORTED_MODULE_0_object_assign__({}, state, { phase: "firstWin" });
+            }
         default:
             return state;
     }
@@ -29135,157 +29191,135 @@ function symbolObservablePonyfill(root) {
 
 var Duckmaster = (function () {
     function Duckmaster() {
-        var _this = this;
-        this.genMoves = function (board, pool, step) {
-            var nobodySquares = board
+        this.genMoves = function (world) {
+            var sign = Math.pow(-1, world.step % 2);
+            var nobodySquares = world.board
                 .map(function (v, k) { return { k: k, v: v }; })
                 .filter(function (a) { return a.v == 0; })
                 .map(function (a) { return a.k; });
-            var deadEnd4Chick = board
+            var pool2moves_ = world.pool
                 .map(function (v, k) { return { k: k, v: v }; })
-                .filter(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(a.k).j == step % 2 * 3; })
-                .map(function (a) { return a.k; });
-            var pool2moves_ = _this.pool
-                .map(function (v, k) { return { k: k, v: v }; })
-                .filter(function (a) { return a.k < 3 && a.v > 0; });
+                .filter(function (a) { return world.step % 2 == 0 ? (a.k > 2 && a.v > 0) : (a.k < 3 && a.v > 0); });
             var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
-                .map(function (a) { return { predator: -Math.pow(2, a.k + 1), from: a.k + 12 }; })
+                .map(function (a) {
+                return {
+                    predator: (world.step % 2 == 0 ? Math.pow(2, a.k - 2) : -Math.pow(2, a.k + 1)),
+                    from: a.k + 12
+                };
+            })
                 .map(function (a) { return nobodySquares
-                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-                .reduce(function (a, b) { return a.concat(b); }))
-                .filter(function (a) { return a.predator != -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? true : deadEnd4Chick.indexOf(a.to) == -1; });
-            var board2moves = _this.board
+                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
+                .reduce(function (a, b) { return a.concat(b); }));
+            var board2moves_ = world.board
                 .map(function (v, k) { return { predator: v, from: k }; })
-                .filter(function (a) { return a.predator < 0; })
-                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
-                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-                .reduce(function (a, b) { return a.concat(b); })
-                .filter(function (a) { return a.predator * a.prey <= 0; });
+                .filter(function (a) { return world.step % 2 == 0 ? a.predator > 0 : a.predator < 0; });
+            var board2moves = board2moves_.length < 2 ? [] :
+                board2moves_
+                    .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
+                    .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: world.board[b] }; }); })
+                    .reduce(function (a, b) { return a.concat(b); })
+                    .filter(function (a) { return a.predator * a.prey <= 0; });
             return board2moves.concat(pool2moves);
         };
+        this.execute = function (move, world) {
+            return {
+                step: world.step + 1,
+                board: world.board
+                    .map(function (a, idx) {
+                    return idx == move.from ? 0 :
+                        idx != move.to ? a :
+                            move.from >= 12 ? move.predator :
+                                Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? move.predator :
+                                    move.predator == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"]) :
+                                        (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"]);
+                }),
+                pool: world.pool
+                    .map(function (amount, idx) {
+                    return move.from < 12 ? (move.prey == 0 ? amount : (idx == (world.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
+                })
+            };
+        };
+        this.scoreOf = function (world) {
+            var boardScore = function (board) { return board
+                .map(function (v, k) { return { k: k, v: v }; })
+                .filter(function (a) { return a.v >= -1; })
+                .map(function (a) { return (a.v == -__WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 3 ? 2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
+                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["m" /* p2ij */])(a.k).j == 0 ? -2 * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"] : -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Lion"]) :
+                    a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Elephant"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Elephant"] :
+                        a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Giraffe"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Giraffe"] :
+                            a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Chick"] :
+                                a.v == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Hen"] ? -__WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["Hen"] : 0); })
+                .reduce(function (a, b) { return a + b; }); };
+            var poolScore = function (pool) { return pool
+                .filter(function (a, idx) { return idx < 3; })
+                .map(function (amount, idx) { return (Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Elephant"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["EinPool"] :
+                Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Giraffe"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["GinPool"] :
+                    Math.pow(2, idx + 1) == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Chick"] ? amount * __WEBPACK_IMPORTED_MODULE_0__util__["o" /* SCORES */]["CinPool"] : 0); })
+                .reduce(function (a, b) { return a + b; }); };
+            return boardScore(world.board) + poolScore(world.pool);
+        };
     }
-    Duckmaster.prototype.readState = function (state) {
-        this.board = state.board;
-        this.pool = state.pool;
-        this.step = state.step;
-        this.record = state.record;
-        this.remarked = state.remarked;
-        this.phase = this.phase;
+    Duckmaster.prototype.readWorld = function (world) {
+        this.world = world;
     };
     Duckmaster.prototype.random = function () {
-        var moves = this.genMoves(this.board, this.pool, this.step);
+        var moves = this.genMoves(this.world);
         return moves[Math.floor(Math.random() * moves.length)];
     };
     Duckmaster.prototype.reckless = function () {
-        var moves = this.genMoves(this.board, this.pool, this.step);
+        var moves = this.genMoves(this.world);
         var eatLion = moves
-            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
+            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["i" /* PIECES */]["Lion"]; });
         if (eatLion.length == 0) {
             return moves[Math.floor(Math.random() * moves.length)];
         }
         else {
-            return eatLion[0]; //[Math.floor(Math.random()*eatLion.length)];
-        }
-    };
-    Duckmaster.prototype.coward = function () {
-        var moves = this.genMoves(this.board, this.pool, this.step);
-        var eatLion = moves
-            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
-        var unsafeArea = this.board
-            .map(function (v, k) { return { predator: v, place: k }; })
-            .filter(function (a) { return a.predator > 0; })
-            .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.place); })
-            .reduce(function (a, b) { return a.concat(b); });
-        var safeMoves = moves
-            .filter(function (move) { return move.predator == -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"] ? unsafeArea.indexOf(move.to) == -1 : true; });
-        if (eatLion.length != 0) {
             return eatLion[0];
         }
-        else if (safeMoves.length != 0) {
-            return safeMoves[Math.floor(Math.random() * safeMoves.length)];
-        }
-        else {
-            return moves[Math.floor(Math.random() * moves.length)];
-        }
     };
-    Duckmaster.prototype.developing = function () {
+    Duckmaster.prototype.greedy = function () {
         var _this = this;
-        var genMoves_ = function (board, pool, step) {
-            var nobodySquares = board
-                .map(function (v, k) { return { k: k, v: v }; })
-                .filter(function (a) { return a.v == 0; })
-                .map(function (a) { return a.k; });
-            var deadEnd4Chick = board
-                .map(function (v, k) { return { k: k, v: v }; })
-                .filter(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(a.k).j == step % 2 * 3; })
-                .map(function (a) { return a.k; });
-            var pool2moves_ = _this.pool
-                .map(function (v, k) { return { k: k, v: v }; })
-                .filter(function (a) { return a.k > 2 && a.v > 0; });
-            var pool2moves = pool2moves_.length == 0 ? [] : (pool2moves_
-                .map(function (a) { return { predator: Math.pow(2, a.k - 2), from: a.k + 12 }; })
-                .map(function (a) { return nobodySquares
-                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-                .reduce(function (a, b) { return a.concat(b); }))
-                .filter(function (a) { return a.predator != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? true : deadEnd4Chick.indexOf(a.to) == -1; });
-            var board2moves = _this.board
-                .map(function (v, k) { return { predator: v, from: k }; })
-                .filter(function (a) { return a.predator > 0; })
-                .map(function (a) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["d" /* willPosition */])(a.predator, a.from)
-                .map(function (b) { return { predator: a.predator, from: a.from, to: b, prey: _this.board[b] }; }); })
-                .reduce(function (a, b) { return a.concat(b); })
-                .filter(function (a) { return a.predator * a.prey <= 0; });
-            return board2moves.concat(pool2moves);
-        };
-        var moves = this.genMoves(this.board, this.pool, this.step) ? this.genMoves(this.board, this.pool, this.step) : [];
-        var execute = function (move) {
-            return {
-                step: _this.step + 1,
-                phase: move.prey == -1 ? "firstWin" :
-                    move.prey == 1 ? "secondWin" : "waiting",
-                board: _this.board
-                    .map(function (a, idx) {
-                    return idx == move.from ? 0 :
-                        idx != move.to ? a :
-                            Math.abs(move.predator) != __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? move.predator :
-                                move.predator == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] ? (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(move.to).j != 0 ? __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]) :
-                                    (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["l" /* p2ij */])(move.to).j != 3 ? -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Chick"] : -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Hen"]);
-                }),
-                pool: _this.pool
-                    .map(function (amount, idx) {
-                    return move.from < 12 ? (move.prey == 0 ? amount : (idx == (_this.step + 1) % 2 * 3 + Math.min(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util__["n" /* log2 */])(Math.abs(move.prey)), 3) - 1 ? amount + 1 : amount)) : (idx == move.from - 12 ? amount - 1 : amount);
-                })
-            };
-        };
-        var nextStates = moves
-            .map(function (move, idx) { return { idxOfMoves: idx, state: execute(move), myMove: move }; });
-        var enemyMoves_ = nextStates
-            .map(function (a) {
-            return {
-                idxOfMoves: a.idxOfMoves,
-                myMove: a.myMove,
-                enemyMove: genMoves_(a.state.board, a.state.pool, a.state.step)
-                    .filter(function (m) { return m.prey == -__WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; })
-            };
+        var moves = this.genMoves(this.world)
+            .map(function (move) {
+            var nextWorld = _this.execute(move, _this.world);
+            return { move: move, score: _this.scoreOf(nextWorld) };
         })
-            .filter(function (a) { return a.enemyMove.length > 0; });
-        //console.log(enemyMoves_)
-        var deadEnd = enemyMoves_
-            .map(function (a) { return a.idxOfMoves; });
-        //.map( a => moves);
-        console.log(moves); //deadEnd)
-        var runaways = moves
-            .filter(function (a, idx) { return deadEnd.indexOf(idx) == -1; });
-        var eatLion = moves
-            .filter(function (a) { return a.prey == __WEBPACK_IMPORTED_MODULE_0__util__["m" /* PIECES */]["Lion"]; });
-        if (eatLion.length != 0) {
-            return eatLion[0];
+            .filter(function (a, idx, self) { return a.score == Math.max.apply({}, self.map(function (s) { return s.score; })); });
+        return moves[Math.floor(Math.random() * moves.length)].move;
+    };
+    Duckmaster.prototype.minimax = function () {
+        var _this = this;
+        var timeover = false;
+        setTimeout(function () { timeover = true; }, 1000);
+        var moves_ = this.genMoves(this.world);
+        try {
+            var moves = this.genMoves(this.world)
+                .map(function (move) {
+                var nextWorld1 = _this.execute(move, _this.world);
+                return _this.genMoves(nextWorld1)
+                    .map(function (m1) {
+                    var nextWorld2 = _this.execute(m1, nextWorld1);
+                    return _this.genMoves(nextWorld2)
+                        .map(function (m3) {
+                        var nextWorld3 = _this.execute(m1, nextWorld2);
+                        return { move: move, score: _this.scoreOf(nextWorld3) };
+                    })
+                        .filter(function (a, idx, self) { return a.score == Math.max.apply({}, self.map(function (s) { return s.score; })); });
+                })
+                    .filter(function (a) { return a != []; })
+                    .reduce(function (a, b) { return a.concat(b); })
+                    .filter(function (a, idx, self) { return a.score == Math.min.apply({}, self.map(function (s) { return s.score; })); });
+            })
+                .filter(function (a) { return a != []; })
+                .reduce(function (a, b) { return a.concat(b); }, [])
+                .filter(function (a, idx, self) { return a.score == Math.max.apply({}, self.map(function (s) { return s.score; })); })
+                .map(function (a) { return a.move; });
+            return timeover ?
+                this.greedy() :
+                moves[Math.floor(Math.random() * moves.length)];
         }
-        else if (runaways.length != 0) {
-            return runaways[Math.floor(Math.random() * runaways.length)];
-        }
-        else {
-            return moves[Math.floor(Math.random() * moves.length)];
+        catch (e) {
+            return this.greedy();
         }
     };
     return Duckmaster;
@@ -29370,6 +29404,9 @@ var Duckshogi = (function (_super) {
             });
         };
         _this.drawSquares = function () {
+            _this.ctx.fillStyle = '#ffffff';
+            _this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */]);
+            _this.ctx.fill();
             __WEBPACK_IMPORTED_MODULE_1_immutable__["Range"](0, 18).toArray()
                 .map(function (p) {
                 _this.ctx.beginPath();
@@ -29392,23 +29429,23 @@ var Duckshogi = (function (_super) {
                 .filter(function (a) { return a.v != 0; })
                 .map(function (a) {
                 switch (Math.abs(a.v)) {
-                    case 1:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Lion"]:
                         _this.ctx.fillStyle = '#ff4500';
                         break;
-                    case 2:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Elephant"]:
                         _this.ctx.fillStyle = '#039be5';
                         break;
-                    case 4:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Giraffe"]:
                         _this.ctx.fillStyle = '#ffff22';
                         break;
-                    case 8:
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Chick"]:
                         _this.ctx.fillStyle = '#90ee90';
                         break;
-                    case 16:
-                        _this.ctx.fillStyle = '#ff00aa';
+                    case __WEBPACK_IMPORTED_MODULE_2__util__["i" /* PIECES */]["Hen"]:
+                        _this.ctx.fillStyle = '#ee00aa';
                         break;
                 }
-                _this.frenemy(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["e" /* p2centerXY */])(a.idx).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["e" /* p2centerXY */])(a.idx).y, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], a.v);
+                _this.frenemy(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).x, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["j" /* p2centerXY */])(a.idx).y, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], a.v);
             });
             var shift = 20;
             _this.props.state.pool
@@ -29426,15 +29463,15 @@ var Duckshogi = (function (_super) {
                 }
                 if (idx < 3) {
                     if (a >= 1)
-                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] + shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], -1);
+                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] + shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -1);
                     if (a >= 2)
-                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], -1);
+                        _this.frenemy((idx + 0.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] - shift / 2, __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] / 2, __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], -1);
                 }
                 if (idx >= 3) {
                     if (a >= 1)
-                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], 1);
+                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] - shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], 1);
                     if (a >= 2)
-                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */] + shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["f" /* R */], 1);
+                        _this.frenemy((idx - 2.5) * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] / 3 + __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */] + shift / 2, 1.5 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */] + __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] * __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */], __WEBPACK_IMPORTED_MODULE_2__util__["k" /* R */], 1);
                 }
             });
         };
@@ -29446,6 +29483,9 @@ var Duckshogi = (function (_super) {
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
                 "STEP: ",
                 this.props.state.step),
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
+                "STEP: ",
+                this.props.state.phase),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null,
                 __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () {
                         if (_this.props.state.step % 2 == 0)
@@ -29456,14 +29496,14 @@ var Duckshogi = (function (_super) {
     Duckshogi.prototype.componentDidMount = function () {
         var _this = this;
         var canvas = this.refs.myCanvas;
-        canvas.width = __WEBPACK_IMPORTED_MODULE_2__util__["g" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINX */];
-        canvas.height = __WEBPACK_IMPORTED_MODULE_2__util__["j" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["i" /* MERGINY */];
+        canvas.width = __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */];
+        canvas.height = __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */];
         this.ctx = canvas.getContext('2d');
         this.drawSquares();
         this.drawPieces();
         if (this.props.state.step % 2 == 0) {
             canvas.onmousedown = function (e) {
-                var p = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["k" /* mouse2p */])(e.offsetX, e.offsetY);
+                var p = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__util__["l" /* mouse2p */])(e.offsetX, e.offsetY);
                 _this.props.actions.click(p);
             };
         }
@@ -29474,13 +29514,13 @@ var Duckshogi = (function (_super) {
         this.drawSquares();
         this.drawPieces();
         // for AI
-        if (this.props.state.step % 2 == 1) {
-            AI.readState(this.props.state);
-            var move_1 = AI.reckless();
-            //const move = AI.coward();
-            setTimeout(function () {
-                return _this.props.actions.execMove(move_1);
-            }, 1000);
+        if (this.props.state.step % 2 == 1 && this.props.state.phase == "waiting") {
+            this.ctx.fillStyle = 'rgba( 120, 120, 20, 0.2 )';
+            this.ctx.rect(0, 0, __WEBPACK_IMPORTED_MODULE_2__util__["e" /* W */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["f" /* MERGINX */], __WEBPACK_IMPORTED_MODULE_2__util__["g" /* H */] * __WEBPACK_IMPORTED_MODULE_2__util__["c" /* INTERVAL */] + 2 * __WEBPACK_IMPORTED_MODULE_2__util__["h" /* MERGINY */]);
+            this.ctx.fill();
+            AI.readWorld(this.props.state);
+            var move_1 = AI.minimax();
+            setTimeout(function () { return _this.props.actions.execMove(move_1); }, 1000);
         }
         // for terminal
         this.ctx.fillStyle = "#000000";

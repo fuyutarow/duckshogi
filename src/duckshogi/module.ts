@@ -7,9 +7,9 @@ export interface DuckshogiState {
   board: number[];
   pool: number[];
   step: number;
-  record: any[];
-  remarked: number;
-  phase: string;
+  record?: any[];
+  remarked?: number;
+  phase?: string;
 }
 
 interface DuckshogiAction {
@@ -48,27 +48,65 @@ export default function reducer(
   action: DuckshogiAction
 ): DuckshogiState {
 
-  const execute = ( move:any ) => ObjectAssign( {}, state, {
-    step: state.step+1,
-    phase: move.prey==-1? "firstWin" :
-      move.prey==1? "secondWin" : "waiting",
-    board:  state.board
+  const genMoves = ( world:DuckshogiState ) => {
+      const sign = Math.pow(-1,world.step%2);
+      const nobodySquares = world.board
+        .map( (v,k) => { return { k:k, v:v }})
+        .filter( a => a.v==0 )
+        .map( a => a.k )
+      const pool2moves_ = world.pool
+        .map( (v,k) => { return { k:k, v:v }})
+        .filter( a => world.step%2==0? (a.k>2 && a.v>0):(a.k<3 && a.v>0) )
+      const pool2moves = pool2moves_.length==0? []: (
+        pool2moves_
+          .map( a => { return {
+            predator: (world.step%2==0? Math.pow(2,a.k-2) :  -Math.pow(2,a.k+1) ),
+            from: a.k+12 } })
+          .map( a => nobodySquares
+            .map( b => { return { predator:a.predator, from:a.from, to:b, prey:world.board[b] }}))
+          .reduce( (a,b) => a.concat(b) ))
+      const board2moves_ = world.board
+        .map( (v,k) => { return { predator:v, from:k } })
+        .filter( a => world.step%2==0? a.predator>0 : a.predator<0 )
+      const board2moves = board2moves_.length<2? []:
+        board2moves_
+          .map( a => willPosition( a.predator, a.from )
+            .map( b => { return { predator:a.predator, from:a.from, to:b, prey:world.board[b] } }))
+          .reduce( (a,b) => a.concat(b) )
+          .filter( a => a.predator * a.prey <= 0 )
+      return board2moves.concat(pool2moves)
+    }
+
+  const execute_ = ( move:any, world:DuckshogiState ) => { return {
+    step: world.step+1,
+    board:  world.board
       .map( (a,idx) =>
         idx==move.from? 0:
         idx!=move.to? a:
+        move.from>=12? move.predator:
+        // for promotion
         Math.abs(move.predator)!=PIECES["Chick"]? move.predator:
         move.predator==PIECES["Chick"]? (p2ij(move.to).j!=0? PIECES["Chick"]:PIECES["Hen"]):
         (p2ij(move.to).j!=3? -PIECES["Chick"]:-PIECES["Hen"])),
-    record: state.record.concat(move),
+    record: world.record.concat(move),
     remarked: -100,
-    pool: state.pool
+    pool: world.pool
       .map( (amount,idx) =>
         move.from<12? (
-          move.prey==0? amount: ( idx==(state.step+1)%2*3+Math.min(log2(Math.abs(move.prey)),3)-1 ? amount+1: amount )
+          move.prey==0? amount: ( idx==(world.step+1)%2*3+Math.min(log2(Math.abs(move.prey)),3)-1 ? amount+1: amount )
         ):(
           idx==move.from-12 ? amount-1: amount
         ))
-    })
+    }}
+  const judgePhase = ( move:any, world:DuckshogiState ) =>
+      move.prey==-PIECES["Lion"]? "firstWin" :
+      move.prey==PIECES["Lion"]? "secondWin" :
+      // for try rule
+      move.predator==PIECES["Lion"] && p2ij(move.to).j==0 && genMoves(execute_(move, world)).filter(move=>move.prey==PIECES["Lion"]).length==0? "firstWin":
+      move.predator==-PIECES["Lion"] && p2ij(move.to).j==3 && genMoves(execute_(move, world)).filter(move=>move.prey==-PIECES["Lion"]).length==0? "secondWin":
+      "waiting";
+  const execute = ( move:any, world:DuckshogiState ) =>
+    ObjectAssign( {}, execute_(move, world), { phase:judgePhase(move, world)} )
 
   switch (action.type) {
 
@@ -97,7 +135,7 @@ export default function reducer(
           to: action.clicked,
           prey: captured!=PIECES["Hen"]? captured: PIECES["Chick"]
         }
-        if( move.from>= 12 ){
+        if( move.from >= 12 ){
           const nobodySquares = state.board
             .map( (v,k) => { return { k:k, v:v }})
             .filter( a => a.v==0 )
@@ -105,10 +143,7 @@ export default function reducer(
           if( nobodySquares.indexOf( move.to ) == -1 ){
             return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
-          if( Math.abs( move.predator )==PIECES['Chick'] && p2ij(move.to).j==state.step%2*3 ){
-            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
-          }
-          return execute(move);
+          return ObjectAssign( {}, state, execute(move, state) );
         }
         if( move.from < 12 ){
           if( willPosition( move.predator, state.remarked ).indexOf( move.to ) == -1 ){
@@ -118,7 +153,7 @@ export default function reducer(
         if( move.predator*move.prey > 0 ){
           return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
-        return execute(move)
+        return ObjectAssign( {}, state, execute(move, state) );
     }
 
     case ActionTypes.UNDO:
@@ -161,7 +196,11 @@ export default function reducer(
       })
 
     case ActionTypes.EXEC_MOVE:
-      return execute(action.move);
+      try{
+        return ObjectAssign( {}, state, execute(action.move, state) );
+      }catch(e){
+        return ObjectAssign( {}, state, { phase:"firstWin"} );
+      }
 
     default:
       return state;

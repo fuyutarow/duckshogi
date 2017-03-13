@@ -8,7 +8,6 @@ import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
 import Duckmaster from './duckshogi-ai';
 const AI = new Duckmaster;
 
-
 interface Props {
   state: DuckshogiState;
   actions: ActionDispatcher;
@@ -60,6 +59,9 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
 
   drawSquares = () => {
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.rect( 0, 0, W*INTERVAL + 2*MERGINX, H*INTERVAL + 2*MERGINY);
+    this.ctx.fill();
     Immutable.Range(0,18).toArray()
       .map( p => {
         this.ctx.beginPath();
@@ -81,11 +83,11 @@ export class Duckshogi extends React.Component<Props, {}> {
       .filter( a => a.v!=0 )
       .map( a => {
         switch( Math.abs(a.v) ){
-          case 1: this.ctx.fillStyle = '#ff4500'; break;
-          case 2: this.ctx.fillStyle = '#039be5'; break;
-          case 4: this.ctx.fillStyle = '#ffff22'; break;
-          case 8: this.ctx.fillStyle = '#90ee90'; break;
-          case 16: this.ctx.fillStyle = '#ff00aa'; break; }
+          case PIECES["Lion"]: this.ctx.fillStyle = '#ff4500'; break;
+          case PIECES["Elephant"]: this.ctx.fillStyle = '#039be5'; break;
+          case PIECES["Giraffe"]: this.ctx.fillStyle = '#ffff22'; break;
+          case PIECES["Chick"]: this.ctx.fillStyle = '#90ee90'; break;
+          case PIECES["Hen"]: this.ctx.fillStyle = '#ee00aa'; break; }
         this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v )});
 
     const shift = 20;
@@ -108,7 +110,8 @@ export class Duckshogi extends React.Component<Props, {}> {
   render() {
     return (
       <div>
-        <h3>STEP: { this.props.state.step }</h3>
+      <h3>STEP: { this.props.state.step }</h3>
+      <h3>STEP: { this.props.state.phase }</h3>
         <p>
           <button onClick={ () => {
             if( this.props.state.step%2 == 0 ) this.props.actions.undo();
@@ -143,13 +146,13 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawPieces();
 
 // for AI
-    if( this.props.state.step%2 == 1 ){
-      AI.readState( this.props.state );
-      const move = AI.reckless();
-      //const move = AI.coward();
-      setTimeout( () =>
-        this.props.actions.execMove(move),
-        1000);
+    if( this.props.state.step%2==1 && this.props.state.phase=="waiting" ){
+      this.ctx.fillStyle = 'rgba( 120, 120, 20, 0.2 )';
+      this.ctx.rect(0,0,W*INTERVAL + 2*MERGINX,H*INTERVAL + 2*MERGINY);
+      this.ctx.fill();
+      AI.readWorld( this.props.state );
+      const move = AI.minimax();
+      setTimeout( () => this.props.actions.execMove(move), 1000);
     }
 
 // for terminal

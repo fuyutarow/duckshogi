@@ -55,6 +55,17 @@ export const PIECES = {
   "Hen": 16,
 }
 
+export const SCORES = {
+  "Lion": 100,
+  "Elephant": 5,
+  "Giraffe": 5,
+  "Chick": 4,
+  "Hen": 16,
+  "EinPool": 3,
+  "GinPool": 3,
+  "CinPool": 1,
+}
+
 const moving = ( s:string ) =>
   s=="northwest"? -1-W:
   s=="north"? -W:
