@@ -29483,9 +29483,6 @@ var Duckshogi = (function (_super) {
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
                 "STEP: ",
                 this.props.state.step),
-            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("h3", null,
-                "STEP: ",
-                this.props.state.phase),
             __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("p", null,
                 __WEBPACK_IMPORTED_MODULE_0_react__["createElement"]("button", { onClick: function () {
                         if (_this.props.state.step % 2 == 0)

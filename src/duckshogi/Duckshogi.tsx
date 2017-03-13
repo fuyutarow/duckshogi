@@ -111,7 +111,6 @@ export class Duckshogi extends React.Component<Props, {}> {
     return (
       <div>
       <h3>STEP: { this.props.state.step }</h3>
-      <h3>STEP: { this.props.state.phase }</h3>
         <p>
           <button onClick={ () => {
             if( this.props.state.step%2 == 0 ) this.props.actions.undo();
