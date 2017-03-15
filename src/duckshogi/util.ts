@@ -13,7 +13,6 @@ export const p2ij = ( p:number ) => {
     i: p%W,
     j: Math.floor(p/W) }};
 
-//export const log2 = ( x:number ) => x==2? 1: x==4? 2: x==8? 3: -100;
 export const log2 = ( x:number ) => Math.round(Math.LOG2E * Math.log(x))
 
 export const p2northwestXY = ( p:number) =>
@@ -48,11 +47,11 @@ export const mouse2p = ( mouseX:number, mouseY:number) => {
   )%1000 };
 
 export const PIECES = {
-  "Lion": 1,
-  "Elephant": 2,
-  "Giraffe": 4,
-  "Chick": 8,
-  "Hen": 16,
+  "Lion": 2,
+  "Elephant": 4,
+  "Giraffe": 8,
+  "Chick": 16,
+  "Hen": 31,
 }
 
 export const SCORES = {
@@ -71,17 +70,25 @@ const moving = ( s:string ) =>
   s=="north"? -W:
   s=="northeast"? 1-W:
   s=="west"? -1:
-  s=="right"? 1:
+  s=="east"? 1:
   s=="southwest"? -1+W:
   s=="south"? W:
   s=="southeast"? 1+W: 0
 
+const canMove_ = ( n:number ) =>
+  n==PIECES["Lion"]?     [ "northwest","north","northeast","west","east","southwest","south","southeast" ] :
+  n==PIECES["Elephant"]? [ "northwest","northeast","southwest","southeast" ] :
+  n==PIECES["Giraffe"]?  [ "north","west","east","south" ] :
+  n==PIECES["Chick"]?    [ "north" ] :
+  n==PIECES["Hen"]?      [ "northwest","north","northeast","west","east","south" ] : []
+
 const canMove = ( n:number ) =>
-  /*Lion*/     n==1?  [ "northwest","north","northeast","west","right","southwest","south","southeast" ] :
-  /*Elephant*/ n==2?  [ "northwest","northeast","southwest","southeast" ] :
-  /*Giraffe*/  n==4?  [ "north","west","right","south" ] :
-  /*Chick*/    n==8?  [ "north" ] :
-  /*Hen*/      n==16? [ "northwest","north","northeast","west","right","south" ] : []
+  [0,1,2,3,4]
+    .map( a => (n>>a)%2 )
+    .map((a,idx) => a*Math.pow(2,idx) )
+    .map( a => canMove_(a) )
+    .reduce( (a,b) => a.concat(b) )
+    .filter( (a,idx,self) => self.indexOf(a)===idx )
 
 export const p2ij4moving = ( n:number ) => {
   return {
@@ -97,3 +104,47 @@ export const willPosition = ( duck:number, p:number ) => {
       0 <= ( p2ij(p).j + p2ij4moving(a).j ) && ( p2ij(p).j + p2ij4moving(a).j ) < 4 ))
     .map( a => p+a )
   }
+
+const director = ( to_from:number ) =>
+  to_from==-4? "northwest":
+  to_from==-3? "north":
+  to_from==-2? "northeast":
+  to_from==-1? "west":
+  to_from==1?  "east":
+  to_from==2?  "southwest":
+  to_from==3?  "south":
+  to_from==4?  "southeast": "";
+
+interface Move {
+  predator: number,
+  from: number,
+  to: number,
+  prey: number,
+}
+
+export const detective = ( move:Move ) => {
+  const who = move.predator;
+  const direction = director(move.to-move.from);
+  const res =
+    who==33? (
+      [ "north" ].indexOf(direction)!=-1?
+        PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"] :
+      [ "north","west","east","south" ].indexOf(direction)!=-1?
+        PIECES["Lion"]+PIECES["Giraffe"] :
+      [ "northwest","northeast","southwest","southeast" ].indexOf(direction)!=-1?
+        PIECES["Lion"]+PIECES["Elephant"] :
+        who ):
+    who==PIECES["Lion"]+PIECES["Elephant"]? (
+      canMove(PIECES["Elephant"]).indexOf(direction)!=-1?
+        who : who - PIECES["Elephant"] ):
+    who==PIECES["Lion"]+PIECES["Giraffe"]? (
+      canMove(PIECES["Giraffe"]).indexOf(direction)!=-1?
+        who : who - PIECES["Giraffe"] ):
+    who==PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"]? (
+      canMove(PIECES["Chick"]).indexOf(direction)!=-1?
+        who :
+      canMove(PIECES["Giraffe"]).indexOf(direction)!=-1?
+        who - PIECES["Chick"] :
+        who - PIECES["Chick"] - PIECES["Giraffe"] ): who;
+    return res;
+}

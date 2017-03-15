@@ -24,16 +24,8 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "12pt Arial";
     this.ctx.textAlign = "center";
-    const duck =
-      s=="board"? Math.abs(f):
-      s=="pool"? Math.abs(f): "";
-    const letter =
-      duck==PIECES["Lion"]? "米":
-      duck==PIECES["Elephant"]? "✕":
-      duck==PIECES["Giraffe"]? "十":
-      duck==PIECES["Chick"]? "^":
-      duck==PIECES["Hen"]? "木":"";
-    if( s=="board" && Math.abs(f)==PIECES["Hen"] ) f=-f;
+    const duck= Math.abs(f) as number;
+    const letter = duck;
     if( f>0 ){
       this.ctx.fillText( letter, x, y );
       this.ctx.restore();
@@ -48,7 +40,7 @@ export class Duckshogi extends React.Component<Props, {}> {
 
   frenemy = ( x:number, y:number, r:number, f:number, s:string  ) => {
     this.ctx.beginPath();
-    if( f>0 ){// frined
+    if( f>0 && f<33 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 - TPI/4), y + r*Math.sin(i*TPI/6 - TPI/4) )});
@@ -138,9 +130,11 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
 
   render() {
+    console.log(this.props.state.board )
     return (
       <div>
-      <h3>STEP: { this.props.state.step }</h3>
+        <h3>STEP: { this.props.state.step }</h3>
+        <h3>{ this.props.state.phase }</h3>
         <p>
           <button onClick={ () => {
             if( this.props.state.step%2 == 0 ) this.props.actions.undo();
@@ -160,12 +154,11 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawSquares();
     this.drawPieces();
 
-    if( this.props.state.step%2 == 0 ){
+    //if( this.props.state.phase=="waiting"){
       canvas.onmousedown = e => {
         const p = mouse2p( e.offsetX, e.offsetY );
         this.props.actions.click( p );
       }
-    }
   }
 
   componentDidUpdate() {
@@ -173,16 +166,6 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
-
-// for AI
-    if( this.props.state.step%2==1 && this.props.state.phase=="waiting" ){
-      this.ctx.fillStyle = 'rgba( 120, 120, 20, 0.2 )';
-      this.ctx.rect(0,0,W*INTERVAL + 2*MERGINX,H*INTERVAL + 2*MERGINY);
-      this.ctx.fill();
-      AI.readWorld( this.props.state );
-      const move = AI.minimax();
-      setTimeout( () => this.props.actions.execMove(move), 1000);
-    }
 
 // for terminal
     this.ctx.fillStyle = "#000000";
