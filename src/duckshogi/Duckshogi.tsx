@@ -40,7 +40,7 @@ export class Duckshogi extends React.Component<Props, {}> {
 
   frenemy = ( x:number, y:number, r:number, f:number, s:string  ) => {
     this.ctx.beginPath();
-    if( f>0 && f<33 ){// frined
+    if( f>0 && f<31 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 - TPI/4), y + r*Math.sin(i*TPI/6 - TPI/4) )});
@@ -159,6 +159,22 @@ export class Duckshogi extends React.Component<Props, {}> {
         const p = mouse2p( e.offsetX, e.offsetY );
         this.props.actions.click( p );
       }
+    //}
+    /*
+    if( this.props.state.phase=="selecting"){
+        canvas.onmousedown = e => {
+          console.log("over")
+          const p = mouse2p( e.offsetX, e.offsetY );
+          this.props.actions.execMove({
+            predator:this.props.state.board[this.props.state.remarked],
+            from:this.props.state.remarked,
+            to:p,
+            prey:this.props.state.board[p]
+          });
+        }
+    }
+    */
+
   }
 
   componentDidUpdate() {
@@ -166,6 +182,18 @@ export class Duckshogi extends React.Component<Props, {}> {
 
     this.drawSquares();
     this.drawPieces();
+
+// for AI
+/*
+    if( this.props.state.step%2==1 && this.props.state.phase=="waiting" ){
+      this.ctx.fillStyle = 'rgba( 120, 120, 20, 0.2 )';
+      this.ctx.rect(0,0,W*INTERVAL + 2*MERGINX,H*INTERVAL + 2*MERGINY);
+      this.ctx.fill();
+      AI.readWorld( this.props.state );
+      const move = AI.minimax();
+      setTimeout( () => this.props.actions.execMove(move), 1000);
+    }
+*/
 
 // for terminal
     this.ctx.fillStyle = "#000000";

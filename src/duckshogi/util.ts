@@ -51,7 +51,7 @@ export const PIECES = {
   "Elephant": 4,
   "Giraffe": 8,
   "Chick": 16,
-  "Hen": 31,
+  "Hen": 32,
 }
 
 export const SCORES = {
@@ -126,10 +126,10 @@ export const detective = ( move:Move ) => {
   const who = move.predator;
   const direction = director(move.to-move.from);
   const res =
-    who==33? (
+    who==31? (
       [ "north" ].indexOf(direction)!=-1?
         PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"] :
-      [ "north","west","east","south" ].indexOf(direction)!=-1?
+      [ "west","east","south" ].indexOf(direction)!=-1?
         PIECES["Lion"]+PIECES["Giraffe"] :
       [ "northwest","northeast","southwest","southeast" ].indexOf(direction)!=-1?
         PIECES["Lion"]+PIECES["Elephant"] :

@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
 import * as ObjectAssign from 'object-assign';
 
-import { W, H, PIECES, p2ij, willPosition, log2, detective} from './util'
+import { W, H, PIECES, p2ij, willPosition, log2, detective } from './util';
 
 export interface DuckshogiState {
   board: number[];
@@ -37,7 +37,7 @@ const INITIAL_STATE =  {
     31,31,31,
     31,31,31,
   ],
-  pool: [0,0,0,0,0,0], //opponent's Elephant, Giraffe, Chick and yours
+  pool: [0,0,0,0,0,0],// opponent's Elephant, Giraffe, Chick and yours
   step: 0,
   record: [{ predator:0, from:-100, to:-100, prey:0 }],
   phase: "waiting",
@@ -70,42 +70,42 @@ const condensated = ( board:number[], move:any ) => {
   const OP3qbit = [ PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"] ];
 
   const op = board[move.to];
-  console.log(~op)
   const requireLen =
     OP1qbit.indexOf(op)!=-1? 1:
     OP2qbit.indexOf(op)!=-1? 2:
     OP3qbit.indexOf(op)!=-1? 3: 0;
   const opLen = board.filter( a => a==op ).length;
   return board
-    .map( (a,idx) =>
-      a == op? a:
+    .map( a =>
+      a == op ? a:
       opLen < requireLen ? a : a&(~op) )
+    .map( a => a==1? 0:a )
   }
 
-const nextBoard = ( board:number[], move:Move ) => {
+const nextBoard = ( world:DuckshogiState, move:Move ) => {
   const q = move.predator&M(move.to-move.from);
-  const board_ = board
+  const board_ = world.board
     .map( (a,idx) =>
       idx==move.from? 0:
       idx==move.to?   q: a );
   return condensated( board_, move );
-}
+  }
+
+const execute = ( move:any, world:DuckshogiState ) => { return {
+  step: world.step+1,
+  board: nextBoard( world, move ),
+  record: world.record.concat(move),
+  phase:
+    move.prey==-PIECES["Lion"]? "firstWin" :
+    move.prey==PIECES["Lion"]? "secondWin" : "waiting",
+  remarked: -100,
+  pool: world.pool
+  }}
 
 export default function reducer(
-  state: DuckshogiState = INITIAL_STATE,
-  action: DuckshogiAction
-): DuckshogiState {
-
-  const execute = ( move:any, world:DuckshogiState ) => { return {
-    step: world.step+1,
-    board: nextBoard( world.board, move ),
-    record: world.record.concat(move),
-    phase:
-      move.prey==-PIECES["Lion"]? "firstWin" :
-      move.prey==PIECES["Lion"]? "secondWin" : "waiting",
-    remarked: -100,
-    pool: world.pool
-    }}
+    state: DuckshogiState = INITIAL_STATE,
+    action: DuckshogiAction
+  ): DuckshogiState {
 
   switch (action.type) {
 
@@ -114,7 +114,6 @@ export default function reducer(
           return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } )
 
       case "selecting":
-        const duck = state.board[state.remarked];
         const captured = state.board[action.clicked];
         const move =  {
           predator: state.board[state.remarked],
@@ -122,13 +121,11 @@ export default function reducer(
           to: action.clicked,
           prey: captured!=PIECES["Hen"]? captured: PIECES["Chick"]
         }
-
         if( move.from < 12 ){
           if( willPosition( move.predator, state.remarked ).indexOf( move.to ) == -1 ){
             return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
         }
-
         return ObjectAssign( {}, state, execute(move, state) );
     }
 
