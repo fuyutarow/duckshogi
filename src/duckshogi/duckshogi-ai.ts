@@ -1,9 +1,10 @@
 import * as Immutable from 'immutable';
 import { p2ij, willPosition, log2 } from './util';
 import { PIECES, SCORES } from './util';
+import { Complex, Z } from './util';
 
 interface World {
-  board?: number[];
+  board?: any[];
   pool?: number[];
   step?: number;
   record?: any[];
@@ -12,7 +13,7 @@ interface World {
 }
 
 export default class Duckmaster {
-  board: number[];
+  board: any[];
   pool: number[];
   step: number;
   record: any[];
@@ -24,8 +25,9 @@ export default class Duckmaster {
     const sign = Math.pow(-1,world.step%2);
     const nobodySquares = world.board
       .map( (v,k) => { return { k:k, v:v }})
-      .filter( a => a.v==0 )
+      .filter( a => a.v.re==0 )
       .map( a => a.k )
+      /*
     const pool2moves_ = world.pool
       .map( (v,k) => { return { k:k, v:v }})
       .filter( a => world.step%2==0? (a.k>2 && a.v>0):(a.k<3 && a.v>0) )
@@ -37,28 +39,29 @@ export default class Duckmaster {
         .map( a => nobodySquares
           .map( b => { return { predator:a.predator, from:a.from, to:b, prey:world.board[b] }}))
         .reduce( (a,b) => a.concat(b) ))
+    */
     const board2moves_ = world.board
       .map( (v,k) => { return { predator:v, from:k } })
-      .filter( a => world.step%2==0? a.predator>0 : a.predator<0 )
+      .filter( a => world.step%2==0? a.predator.re>0 : a.predator.re<0 )
     const board2moves = board2moves_.length<2? []:
       board2moves_
-        .map( a => willPosition( a.predator, a.from )
+        .map( a => willPosition( a.predator.re, a.from )
           .map( b => { return { predator:a.predator, from:a.from, to:b, prey:world.board[b] } }))
         .reduce( (a,b) => a.concat(b) )
-        .filter( a => a.predator * a.prey <= 0 )
-    return board2moves.concat(pool2moves)
+        .filter( a => a.predator.re * a.prey.re <= 0 )
+    return board2moves//.concat(pool2moves)
   }
 
   execute = ( move:any, world:World ) => { return {
     step: world.step+1,
     board:  world.board
       .map( (a,idx) =>
-        idx==move.from? 0:
-        idx!=move.to? a:
-        move.from>=12? move.predator:
-        Math.abs(move.predator)!=PIECES["Chick"]? move.predator:
-        move.predator==PIECES["Chick"]? (p2ij(move.to).j!=0? PIECES["Chick"]:PIECES["Hen"]):
-        (p2ij(move.to).j!=3? -PIECES["Chick"]:-PIECES["Hen"])),
+        idx==move.from? Z(0,0):
+        idx!=move.to? a:move.predator),
+        //move.from>=12? move.predator:
+        //Math.abs(move.predator)!=PIECES["Chick"]? move.predator:
+        //move.predator==PIECES["Chick"]? (p2ij(move.to).j!=0? PIECES["Chick"]:PIECES["Hen"]):
+        //(p2ij(move.to).j!=3? -PIECES["Chick"]:-PIECES["Hen"])),
     pool: world.pool
       .map( (amount,idx) =>
         move.from<12? (
@@ -69,8 +72,8 @@ export default class Duckmaster {
     }}
 
   scoreOf = ( world:World ) => {
-    const boardScore = ( board:number[] ) => board
-      .map( (v,k) => { return {k:k,v:v} })
+    const boardScore = ( board:Complex[] ) => board
+      .map( (v,k) => { return {k:k,v:v.re} })
       .filter( a => a.v >= -1 )
       .map( a => (
         a.v==-PIECES["Lion"]? (p2ij(a.k).j==3? 2*SCORES["Lion"]: SCORES["Lion"]):
@@ -96,17 +99,8 @@ export default class Duckmaster {
   }
   random(){
     const moves = this.genMoves(this.world);
+    console.log("over")
     return moves[Math.floor(Math.random()*moves.length)];
-  }
-  reckless(){
-    const moves = this.genMoves(this.world);
-    const eatLion = moves
-      .filter( a => a.prey==PIECES["Lion"])
-    if( eatLion.length==0 ){
-      return moves[Math.floor(Math.random()*moves.length)];
-    }else{
-      return eatLion[0];
-    }
   }
   greedy(){
     const moves = this.genMoves(this.world)

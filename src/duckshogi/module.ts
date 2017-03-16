@@ -1,10 +1,11 @@
 import * as Immutable from 'immutable';
 import * as ObjectAssign from 'object-assign';
 
-import { W, H, PIECES, p2ij, willPosition, log2, detective } from './util';
+import { W, H, PIECES, p2ij, willPosition, log2 } from './util'
+import { Complex, Z, reim, will_Position } from './util';
 
 export interface DuckshogiState {
-  board: number[];
+  board: any[];
   pool: number[];
   step: number;
   record?: any[];
@@ -32,99 +33,96 @@ export class ActionTypes {
 const INITIAL_STATE =  {
   remarked: -100,
   board: [
-    31,31,31,
-    31,31,31,
-    31,31,31,
-    31,31,31,
+    Z(0,PIECES["Giraffe"]),  Z(0,PIECES["Lion"]),  Z(0,PIECES["Elephant"]),
+    Z(0,0),                  Z(0,PIECES["Chick"]), Z(0,0),
+    Z(0,0),                  Z(PIECES["Chick"],0), Z(0,0),
+    Z(PIECES["Elephant"],0), Z(PIECES["Lion"],0),  Z(PIECES["Giraffe"],0),
   ],
-  pool: [0,0,0,0,0,0],// opponent's Elephant, Giraffe, Chick and yours
+  pool: [0,0,0,0,0,0], //opponent's Elephant, Giraffe, Chick and yours
   step: 0,
-  record: [{ predator:0, from:-100, to:-100, prey:0 }],
+  record: [{ predator:Z(0,0), from:-100, to:-100, prey:Z(0,0) }],
   phase: "waiting",
 };
-const director = ( to_from:number ) =>
-  to_from==-4? "northwest":
-  to_from==-3? "north":
-  to_from==-2? "northeast":
-  to_from==-1? "west":
-  to_from==1?  "east":
-  to_from==2?  "southwest":
-  to_from==3?  "south":
-  to_from==4?  "southeast": "";
-
-const M = ( to_from:number ) =>
-  ["northwest","northeast","southwest","southeast"].indexOf(director(to_from))!=-1? PIECES["Lion"]+PIECES["Elephant"]:
-  ["west","east","south"].indexOf(director(to_from))!=-1? PIECES["Lion"]+PIECES["Giraffe"]:
-  ["north"].indexOf(director(to_from))!=-1? PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"]: 0;
-
-interface Move {
-  predator: number,
-  from: number,
-  to: number,
-  prey: number,
-}
-
-const condensated = ( board:number[], move:any ) => {
-  const OP1qbit = [ PIECES["Lion"], PIECES["Elephant"], PIECES["Giraffe"], PIECES["Chick"] ];
-  const OP2qbit = [ PIECES["Lion"]+PIECES["Elephant"], PIECES["Lion"]+PIECES["Giraffe"] ];
-  const OP3qbit = [ PIECES["Lion"]+PIECES["Giraffe"]+PIECES["Chick"] ];
-
-  const op = board[move.to];
-  const requireLen =
-    OP1qbit.indexOf(op)!=-1? 1:
-    OP2qbit.indexOf(op)!=-1? 2:
-    OP3qbit.indexOf(op)!=-1? 3: 0;
-  const opLen = board.filter( a => a==op ).length;
-  return board
-    .map( a =>
-      a == op ? a:
-      opLen < requireLen ? a : a&(~op) )
-    .map( a => a==1? 0:a )
-  }
-
-const nextBoard = ( world:DuckshogiState, move:Move ) => {
-  const q = move.predator&M(move.to-move.from);
-  const board_ = world.board
-    .map( (a,idx) =>
-      idx==move.from? 0:
-      idx==move.to?   q: a );
-  return condensated( board_, move );
-  }
-
-const execute = ( move:any, world:DuckshogiState ) => { return {
-  step: world.step+1,
-  board: nextBoard( world, move ),
-  record: world.record.concat(move),
-  phase:
-    move.prey==-PIECES["Lion"]? "firstWin" :
-    move.prey==PIECES["Lion"]? "secondWin" : "waiting",
-  remarked: -100,
-  pool: world.pool
-  }}
 
 export default function reducer(
-    state: DuckshogiState = INITIAL_STATE,
-    action: DuckshogiAction
-  ): DuckshogiState {
+  state: DuckshogiState = INITIAL_STATE,
+  action: DuckshogiAction
+): DuckshogiState {
+
+
+  const execute = ( move:any, world:DuckshogiState ) => { return {
+    step: world.step+1,
+    board:  world.board
+      .map( (a,idx) =>
+        idx==move.from? Z(0,0):
+        idx!=move.to? a: move.predator),
+        //move.from>=12? move.predator:
+        // for promotion
+        //Math.abs(move.predator)!=PIECES["Chick"]? move.predator:
+        //move.predator==PIECES["Chick"]? (p2ij(move.to).j!=0? PIECES["Chick"]:PIECES["Hen"]):
+        //(p2ij(move.to).j!=3? -PIECES["Chick"]:-PIECES["Hen"])),
+    record: world.record.concat(move),
+    remarked: -100,
+    phase:
+      move.prey==Z(0,PIECES["Lion"])? "firstWin" :
+      move.prey==Z(PIECES["Lion"],0)? "secondWin" : "waiting",
+    pool: world.pool
+    //  .map( (amount,idx) =>
+    //    move.from<12? (
+    //      move.prey==0? amount: ( idx==(world.step+1)%2*3+Math.min(log2(Math.abs(move.prey)),3)-1 ? amount+1: amount )
+    //    ):(
+    //      idx==move.from-12 ? amount-1: amount
+    //    ))
+    }}
 
   switch (action.type) {
 
     case ActionTypes.CLICK: switch( state.phase ){
       case "waiting":
+        if( state.step%2 + Math.floor((action.clicked-12)/3) == 1 && state.pool[action.clicked-12] > 0 ){
           return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } )
+        }
+        const sign = state.step%2 *2 *(-1) +1;// step%2==0,1 -> sign==1,-1
+        if( reim(state.board[action.clicked], state.step%2) > 0 && action.clicked != state.remarked ){
+          return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } )
+        }else{
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
+        }
 
       case "selecting":
+        const duck = state.board[state.remarked];
         const captured = state.board[action.clicked];
         const move =  {
-          predator: state.board[state.remarked],
+          predator: //state.remarked<12? (
+              state.board[state.remarked],
+            //):(
+            //  Math.pow(2,state.remarked%3+1) * (Math.floor((state.remarked-12)/3) *2 -1)
+            //),
           from: state.remarked,
           to: action.clicked,
-          prey: captured!=PIECES["Hen"]? captured: PIECES["Chick"]
+          prey: captured.re!=PIECES["Hen"]? captured: Z(PIECES["Chick"],0)
         }
-        if( move.from < 12 ){
-          if( willPosition( move.predator, state.remarked ).indexOf( move.to ) == -1 ){
+        /*
+        if( move.from >= 12 ){
+          const nobodySquares = state.board
+            .map( (v,k) => { return { k:k, v:v }})
+            .filter( a => a.v.re==0 )
+            .map( a => a.k )
+          if( nobodySquares.indexOf( move.to ) == -1 ){
             return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
           }
+          return ObjectAssign( {}, state, execute(move, state) );
+        }
+        */
+        console.log( move )
+        if( move.from < 12 ){
+          if( willPosition( reim(move.predator,state.step%2), state.remarked ).indexOf( move.to ) == -1 ){
+            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
+          }
+        }
+        if( move.predator.re*move.prey.re + move.predator.im*move.prey.im > 0 ){
+          console.log("over")
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
         return ObjectAssign( {}, state, execute(move, state) );
     }

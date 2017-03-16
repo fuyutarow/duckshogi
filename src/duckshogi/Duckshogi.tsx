@@ -5,6 +5,7 @@ import * as Immutable from 'immutable';
 
 import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY, PIECES } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
+import { Complex, Z, reim, will_Position } from './util';
 import Duckmaster from './duckshogi-ai';
 const AI = new Duckmaster;
 
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export class Duckshogi extends React.Component<Props, {}> {
-  board: number[]; // p == x + y*W
+  board: Complex[]; // p == x + y*W
   step: number;
   gameState: string;
   ctx: any;
@@ -24,8 +25,16 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "12pt Arial";
     this.ctx.textAlign = "center";
-    const duck= Math.abs(f) as number;
-    const letter = duck;
+    const duck =
+      s=="board"? Math.abs(f):
+      s=="pool"? Math.abs(f): "";
+    const letter =
+      duck==PIECES["Lion"]? "米":
+      duck==PIECES["Elephant"]? "✕":
+      duck==PIECES["Giraffe"]? "十":
+      duck==PIECES["Chick"]? "^":
+      duck==PIECES["Hen"]? "木":"";
+    if( s=="board" && Math.abs(f)==PIECES["Hen"] ) f=-f;
     if( f>0 ){
       this.ctx.fillText( letter, x, y );
       this.ctx.restore();
@@ -38,14 +47,21 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
   }
 
-  frenemy = ( x:number, y:number, r:number, f:number, s:string  ) => {
+  frenemy = ( x:number, y:number, r:number, who:Complex, s?:string  ) => {
+    switch( who.re + who.im ){
+      case PIECES["Lion"]:     this.ctx.fillStyle = '#ff4500'; break;
+      case PIECES["Elephant"]: this.ctx.fillStyle = '#039be5'; break;
+      case PIECES["Giraffe"]:  this.ctx.fillStyle = '#ffff22'; break;
+      case PIECES["Chick"]:    this.ctx.fillStyle = '#90ee90'; break;
+      case PIECES["Hen"]:      this.ctx.fillStyle = '#ee00aa'; break; }
+
     this.ctx.beginPath();
-    if( f>0 && f<31 ){// frined
+    if( who.re > 0 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 - TPI/4), y + r*Math.sin(i*TPI/6 - TPI/4) )});
     }
-    else if( f<0 ){// enemy
+    else if( who.im > 0 ){// enemy
       this.ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
@@ -59,19 +75,21 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fill();
     this.ctx.lineWidth=2;
     this.ctx.stroke();
-    this.drawLetter( x, y, f, s );
+    //this.drawLetter( x, y, f, s );
   };
 
   remarkP = ( p:number ) => {
+    if( p >= 12 ) return;
     const sign = this.props.state.step %2 *2 *(-1) +1;
-    if( this.props.state.board[p]*sign <= 0 ) return;
+    //if( this.props.state.board[p].re*sign <= 0 ) return;
     this.ctx.beginPath();
     this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
     this.ctx.fillStyle = '#eeee66';
     this.ctx.fill();
-    if( p >= 12 ) return;
-    const duck = this.props.state.board[p];
-    willPosition(duck,p)
+    const duck: Complex = this.props.state.board[p]?
+      this.props.state.board[p] : { re:-100, im:-100};
+    will_Position(duck, p)
+      .map(a=>{console.log(a);return a})
       .map( a => {
         this.ctx.beginPath();
         this.ctx.rect( p2northwestXY(a).x, p2northwestXY(a).y, INTERVAL, INTERVAL );
@@ -101,17 +119,11 @@ export class Duckshogi extends React.Component<Props, {}> {
   drawPieces = () => {
     this.props.state.board
       .map( (value,idx) =>  { return { idx:idx, v:value } })
-      .filter( a => a.v!=0 )
+      .filter( a => a.v.re!=0 || a.v.im!=0 )
       .map( a => {
-        switch( Math.abs(a.v) ){
-          case PIECES["Lion"]: this.ctx.fillStyle = '#ff4500'; break;
-          case PIECES["Elephant"]: this.ctx.fillStyle = '#039be5'; break;
-          case PIECES["Giraffe"]: this.ctx.fillStyle = '#ffff22'; break;
-          case PIECES["Chick"]: this.ctx.fillStyle = '#90ee90'; break;
-          case PIECES["Hen"]: this.ctx.fillStyle = '#ee00aa'; break; }
         this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v, "board" );
         });
-
+      /*
     const shift = 20;
     this.props.state.pool
       .map( (a,idx) => {
@@ -127,14 +139,16 @@ export class Duckshogi extends React.Component<Props, {}> {
           if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
           if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX + shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
         }});
+        */
     }
-
   render() {
-    console.log(this.props.state.board )
-    return (
+
+const ele = Z(4,0)
+const mul = will_Position(ele, 4 )
+console.log( this.props.state )
+   return (
       <div>
-        <h3>STEP: { this.props.state.step }</h3>
-        <h3>{ this.props.state.phase }</h3>
+      <h3>STEP: { this.props.state.step }</h3>
         <p>
           <button onClick={ () => {
             if( this.props.state.step%2 == 0 ) this.props.actions.undo();
@@ -154,27 +168,12 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.drawSquares();
     this.drawPieces();
 
-    //if( this.props.state.phase=="waiting"){
+    //if( this.props.state.step%2 == 0 ){
       canvas.onmousedown = e => {
         const p = mouse2p( e.offsetX, e.offsetY );
         this.props.actions.click( p );
       }
     //}
-    /*
-    if( this.props.state.phase=="selecting"){
-        canvas.onmousedown = e => {
-          console.log("over")
-          const p = mouse2p( e.offsetX, e.offsetY );
-          this.props.actions.execMove({
-            predator:this.props.state.board[this.props.state.remarked],
-            from:this.props.state.remarked,
-            to:p,
-            prey:this.props.state.board[p]
-          });
-        }
-    }
-    */
-
   }
 
   componentDidUpdate() {
@@ -190,7 +189,10 @@ export class Duckshogi extends React.Component<Props, {}> {
       this.ctx.rect(0,0,W*INTERVAL + 2*MERGINX,H*INTERVAL + 2*MERGINY);
       this.ctx.fill();
       AI.readWorld( this.props.state );
-      const move = AI.minimax();
+      //const move = AI.minimax();
+      const move = AI.greedy();
+      //const move = AI.random();
+      console.log(move)
       setTimeout( () => this.props.actions.execMove(move), 1000);
     }
 */
