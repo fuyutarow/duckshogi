@@ -5,7 +5,7 @@ import * as Immutable from 'immutable';
 
 import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY, PIECES } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
-import { Complex, Z, reim, will_Position } from './util';
+import { Complex, Z, z2reim, will_Position } from './util';
 import Duckmaster from './duckshogi-ai';
 const AI = new Duckmaster;
 
@@ -20,31 +20,29 @@ export class Duckshogi extends React.Component<Props, {}> {
   gameState: string;
   ctx: any;
 
-  drawLetter = ( x:number, y:number, f:number, s:string ) => {
+  drawLetter = ( x:number, y:number, who:Complex, s?:string ) => {
     this.ctx.save();
     this.ctx.fillStyle = "#000000";
     this.ctx.font = "12pt Arial";
     this.ctx.textAlign = "center";
-    const duck =
-      s=="board"? Math.abs(f):
-      s=="pool"? Math.abs(f): "";
-    const letter =
-      duck==PIECES["Lion"]? "米":
-      duck==PIECES["Elephant"]? "✕":
-      duck==PIECES["Giraffe"]? "十":
-      duck==PIECES["Chick"]? "^":
-      duck==PIECES["Hen"]? "木":"";
-    if( s=="board" && Math.abs(f)==PIECES["Hen"] ) f=-f;
-    if( f>0 ){
-      this.ctx.fillText( letter, x, y );
+    this.ctx.fillText( who.re, x, y-INTERVAL/10 );
+    this.ctx.fillText( who.im, x, y+INTERVAL/10 );
+    this.ctx.restore();
+
+    //const duck = who.re>0? who.re: who.im;
+    //const letter = duck;
+    /*
+    if( who.re>0 ){
+      this.ctx.fillText( who.re, x, y );
       this.ctx.restore();
-    }
-    if( f<0 ){
+    } else
+    if( who.im>0 ){
       this.ctx.translate( x, y )
       this.ctx.rotate( TPI/2 );
-      this.ctx.fillText( letter, 0, 0 );
+      this.ctx.fillText( who.im, 0, 0 );
       this.ctx.restore();
     }
+    */
   }
 
   frenemy = ( x:number, y:number, r:number, who:Complex, s?:string  ) => {
@@ -56,12 +54,12 @@ export class Duckshogi extends React.Component<Props, {}> {
       case PIECES["Hen"]:      this.ctx.fillStyle = '#ee00aa'; break; }
 
     this.ctx.beginPath();
-    if( who.re > 0 ){// frined
+    if( who.re > 0 && who.im==0 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 - TPI/4), y + r*Math.sin(i*TPI/6 - TPI/4) )});
     }
-    else if( who.im > 0 ){// enemy
+    else if( who.im > 0 && who.re==0 ){// enemy
       this.ctx.moveTo( x + r*Math.cos(TPI/4), y + r*Math.sin(TPI/4) );
       [1,2,4,5].map( (i) => {
         this.ctx.lineTo( x + r*Math.cos(i*TPI/6 + TPI/4), y + r*Math.sin(i*TPI/6 + TPI/4) )});
@@ -75,7 +73,7 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fill();
     this.ctx.lineWidth=2;
     this.ctx.stroke();
-    //this.drawLetter( x, y, f, s );
+    this.drawLetter( x, y, who );
   };
 
   remarkP = ( p:number ) => {
@@ -88,8 +86,7 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fill();
     const duck: Complex = this.props.state.board[p]?
       this.props.state.board[p] : { re:-100, im:-100};
-    will_Position(duck, p)
-      .map(a=>{console.log(a);return a})
+    willPosition(z2reim(duck,this.props.state.step%2), p)
       .map( a => {
         this.ctx.beginPath();
         this.ctx.rect( p2northwestXY(a).x, p2northwestXY(a).y, INTERVAL, INTERVAL );
@@ -143,8 +140,8 @@ export class Duckshogi extends React.Component<Props, {}> {
     }
   render() {
 
-const ele = Z(4,0)
-const mul = will_Position(ele, 4 )
+//const ele = Z(4,0)
+//const mul = will_Position(ele, 4 )
 console.log( this.props.state )
    return (
       <div>

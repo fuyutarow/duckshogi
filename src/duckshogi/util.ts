@@ -5,8 +5,11 @@ export interface Complex {
   im: number;
 }
 
-export const reim = ( z:Complex, zerone:number ) =>
+export const z2reim = ( z:Complex, zerone:number ) =>
   zerone%2==0? z.re : z.im
+
+export const reim2z = ( a:number, zerone:number ) =>
+  zerone%2==0? Z(a,0) : Z(0,a)
 
 export const Z = ( x:number, y:number ) => { return {
   re: x,
@@ -61,11 +64,11 @@ export const mouse2p = ( mouseX:number, mouseY:number) => {
   )%1000 };
 
 export const PIECES = {
-  "Lion": 1,
-  "Elephant": 2,
-  "Giraffe": 4,
-  "Chick": 8,
-  "Hen": 16,
+  "Lion": 2,//1,
+  "Elephant": 4,//2,
+  "Giraffe": 8,//4,
+  "Chick": 16,//8,
+  "Hen": 30,//16,
 }
 
 export const SCORES = {
@@ -84,17 +87,25 @@ const moving = ( s:string ) =>
   s=="north"? -W:
   s=="northeast"? 1-W:
   s=="west"? -1:
-  s=="right"? 1:
+  s=="east"? 1:
   s=="southwest"? -1+W:
   s=="south"? W:
   s=="southeast"? 1+W: 0
 
+const canMove_ = ( n:number ) =>
+  n==PIECES["Lion"]?     [ "northwest","north","northeast","west","east","southwest","south","southeast" ] :
+  n==PIECES["Elephant"]? [ "northwest","northeast","southwest","southeast" ] :
+  n==PIECES["Giraffe"]?  [ "north","west","east","south" ] :
+  n==PIECES["Chick"]?    [ "north" ] :
+  n==PIECES["Hen"]?      [ "northwest","north","northeast","west","east","south" ] : []
+
 const canMove = ( n:number ) =>
-  /*Lion*/     n==1?  [ "northwest","north","northeast","west","right","southwest","south","southeast" ] :
-  /*Elephant*/ n==2?  [ "northwest","northeast","southwest","southeast" ] :
-  /*Giraffe*/  n==4?  [ "north","west","right","south" ] :
-  /*Chick*/    n==8?  [ "north" ] :
-  /*Hen*/      n==16? [ "northwest","north","northeast","west","right","south" ] : []
+  [0,1,2,3,4]
+    .map( a => (n>>a)%2 )
+    .map((a,idx) => a*Math.pow(2,idx) )
+    .map( a => canMove_(a) )
+    .reduce( (a,b) => a.concat(b) )
+    .filter( (a,idx,self) => self.indexOf(a)===idx )
 
 export const p2ij4moving = ( n:number ) => {
   return {
