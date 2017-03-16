@@ -28,21 +28,6 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.fillText( who.re, x, y-INTERVAL/10 );
     this.ctx.fillText( who.im, x, y+INTERVAL/10 );
     this.ctx.restore();
-
-    //const duck = who.re>0? who.re: who.im;
-    //const letter = duck;
-    /*
-    if( who.re>0 ){
-      this.ctx.fillText( who.re, x, y );
-      this.ctx.restore();
-    } else
-    if( who.im>0 ){
-      this.ctx.translate( x, y )
-      this.ctx.rotate( TPI/2 );
-      this.ctx.fillText( who.im, 0, 0 );
-      this.ctx.restore();
-    }
-    */
   }
 
   frenemy = ( x:number, y:number, r:number, who:Complex, s?:string  ) => {
@@ -120,29 +105,9 @@ export class Duckshogi extends React.Component<Props, {}> {
       .map( a => {
         this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v, "board" );
         });
-      /*
-    const shift = 20;
-    this.props.state.pool
-      .map( (a,idx) => {
-        switch( idx%3 ){
-          case 0: this.ctx.fillStyle = '#039be5'; break;
-          case 1: this.ctx.fillStyle = '#ffff22'; break;
-          case 2: this.ctx.fillStyle = '#90ee90'; break; }
-        if( idx < 3 ){
-          if( a >= 1 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX + shift/2, MERGINY/2, R, -Math.pow(2,idx+1), "pool" );
-          if( a >= 2 ) this.frenemy( (idx+0.5)*INTERVAL*W/3 + MERGINX - shift/2, MERGINY/2, R, -Math.pow(2,idx+1), "pool" );
-        }
-        if( idx >= 3 ){
-          if( a >= 1 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX - shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
-          if( a >= 2 ) this.frenemy( (idx-2.5)*INTERVAL*W/3 + MERGINX + shift/2, 1.5*MERGINY + INTERVAL*H, R, Math.pow(2,idx-2), "pool" );
-        }});
-        */
     }
-  render() {
 
-//const ele = Z(4,0)
-//const mul = will_Position(ele, 4 )
-console.log( this.props.state )
+  render() {
    return (
       <div>
       <h3>STEP: { this.props.state.step }</h3>
@@ -211,5 +176,4 @@ console.log( this.props.state )
   shouldComponentUpdate(){
     return (this.props.state.phase=="firstWin" || this.props.state.phase=="secondWin")? false: true;
   }
-
 }

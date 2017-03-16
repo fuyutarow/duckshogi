@@ -13,9 +13,8 @@ export const reim2z = ( a:number, zerone:number ) =>
 
 export const Z = ( x:number, y:number ) => { return {
   re: x,
-  im: y
-}
-};
+  im: y }};
+  
 export const TPI = 2*Math.PI;
 export const INTERVAL = 100;
 export const W = 3;
@@ -29,7 +28,6 @@ export const p2ij = ( p:number ) => {
     i: p%W,
     j: Math.floor(p/W) }};
 
-//export const log2 = ( x:number ) => x==2? 1: x==4? 2: x==8? 3: -100;
 export const log2 = ( x:number ) => Math.round(Math.LOG2E * Math.log(x))
 
 export const p2northwestXY = ( p:number) =>
@@ -64,11 +62,11 @@ export const mouse2p = ( mouseX:number, mouseY:number) => {
   )%1000 };
 
 export const PIECES = {
-  "Lion": 2,//1,
-  "Elephant": 4,//2,
-  "Giraffe": 8,//4,
-  "Chick": 16,//8,
-  "Hen": 30,//16,
+  "Lion": 2,
+  "Elephant": 4,
+  "Giraffe": 8,
+  "Chick": 16,
+  "Hen": 32,
 }
 
 export const SCORES = {
