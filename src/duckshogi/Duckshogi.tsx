@@ -5,7 +5,7 @@ import * as Immutable from 'immutable';
 
 import { TPI, INTERVAL, W, H, R, MERGINX, MERGINY, PIECES } from './util';
 import { p2northwestXY, p2centerXY, mouse2p, willPosition } from './util';
-import { Complex, Z, z2reim, will_Position } from './util';
+import { Complex, Z, z2reim, will_Position, colorOf, Duck } from './util';
 import Duckmaster from './duckshogi-ai';
 const AI = new Duckmaster;
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export class Duckshogi extends React.Component<Props, {}> {
-  board: Complex[]; // p == x + y*W
+  board: Duck[]; // p == x + y*W
   step: number;
   gameState: string;
   ctx: any;
@@ -31,13 +31,8 @@ export class Duckshogi extends React.Component<Props, {}> {
   }
 
   frenemy = ( x:number, y:number, r:number, who:Complex, s?:string  ) => {
-    switch( who.re + who.im ){
-      case PIECES["Lion"]:     this.ctx.fillStyle = '#ff4500'; break;
-      case PIECES["Elephant"]: this.ctx.fillStyle = '#039be5'; break;
-      case PIECES["Giraffe"]:  this.ctx.fillStyle = '#ffff22'; break;
-      case PIECES["Chick"]:    this.ctx.fillStyle = '#90ee90'; break;
-      case PIECES["Hen"]:      this.ctx.fillStyle = '#ee00aa'; break; }
-
+    this.ctx.save();
+    this.ctx.fillStyle = colorOf( who.re + who.im );
     this.ctx.beginPath();
     if( who.re > 0 && who.im==0 ){// frined
       this.ctx.moveTo( x - r*Math.cos(TPI/4), y - r*Math.sin(TPI/4) );
@@ -59,6 +54,8 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.lineWidth=2;
     this.ctx.stroke();
     this.drawLetter( x, y, who );
+    this.ctx.restore();
+
   };
 
   remarkP = ( p:number ) => {
@@ -69,9 +66,9 @@ export class Duckshogi extends React.Component<Props, {}> {
     this.ctx.rect( p2northwestXY(p).x, p2northwestXY(p).y, INTERVAL, INTERVAL );
     this.ctx.fillStyle = '#eeee66';
     this.ctx.fill();
-    const duck: Complex = this.props.state.board[p]?
-      this.props.state.board[p] : { re:-100, im:-100};
-    willPosition(z2reim(duck,this.props.state.step%2), p)
+    const duck: Duck = this.props.state.board[p]?
+      this.props.state.board[p] : { owner:0, who:Z(-100,-100) };
+    willPosition(z2reim(duck.who,this.props.state.step%2), p)
       .map( a => {
         this.ctx.beginPath();
         this.ctx.rect( p2northwestXY(a).x, p2northwestXY(a).y, INTERVAL, INTERVAL );
@@ -101,13 +98,14 @@ export class Duckshogi extends React.Component<Props, {}> {
   drawPieces = () => {
     this.props.state.board
       .map( (value,idx) =>  { return { idx:idx, v:value } })
-      .filter( a => a.v.re!=0 || a.v.im!=0 )
+      //.filter( a => a.v.who.re!=0 || a.v.who.im!=0 )
       .map( a => {
-        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v, "board" );
+        this.frenemy( p2centerXY(a.idx).x, p2centerXY(a.idx).y, R, a.v.who, "board" );
         });
     }
 
   render() {
+    console.log(this.props.state)
    return (
       <div>
       <h3>STEP: { this.props.state.step }</h3>

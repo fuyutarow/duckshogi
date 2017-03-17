@@ -5,6 +5,11 @@ export interface Complex {
   im: number;
 }
 
+export interface Duck {
+  owner: number;// none, first, scond -> 0, 1, 2
+  who: Complex;
+}
+
 export const z2reim = ( z:Complex, zerone:number ) =>
   zerone%2==0? z.re : z.im
 
@@ -14,7 +19,7 @@ export const reim2z = ( a:number, zerone:number ) =>
 export const Z = ( x:number, y:number ) => { return {
   re: x,
   im: y }};
-  
+
 export const TPI = 2*Math.PI;
 export const INTERVAL = 100;
 export const W = 3;
@@ -62,11 +67,33 @@ export const mouse2p = ( mouseX:number, mouseY:number) => {
   )%1000 };
 
 export const PIECES = {
-  "Lion": 2,
+  "Lion":     2,
   "Elephant": 4,
-  "Giraffe": 8,
-  "Chick": 16,
-  "Hen": 32,
+  "Giraffe":  8,
+  "Chick":   16,
+  "Hen":     32,
+}
+
+export const COLORS = {
+  "Lion":     0xff4500,
+  "Elephant": 0x139be5,
+  "Giraffe":  0xffff22,
+  "Chick":    0x90ee90,
+  "Hen":      0xee00aa,
+}
+
+export const colorOf = ( who:number ):string => {
+  const color_ = [1,2,3,4]
+    .map( a => (who>>a)%2 )
+    .map( (a,idx) =>
+      a==0? 0x0:
+      Math.pow(2,idx+1)==PIECES["Lion"]?     COLORS["Lion"]:
+      Math.pow(2,idx+1)==PIECES["Elephant"]? COLORS["Elephant"]:
+      Math.pow(2,idx+1)==PIECES["Giraffe"]?  COLORS["Giraffe"]:
+      Math.pow(2,idx+1)==PIECES["Chick"]?    COLORS["Chick"]: 0x0 )
+  const color = color_
+    .reduce( (a,b) => a|b )
+  return "#"+color.toString(16)
 }
 
 export const SCORES = {

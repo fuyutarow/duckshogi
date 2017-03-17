@@ -2,11 +2,11 @@ import * as Immutable from 'immutable';
 import * as ObjectAssign from 'object-assign';
 
 import { W, H, PIECES, p2ij, willPosition, log2 } from './util'
-import { Complex, Z, reim2z, z2reim, will_Position } from './util';
+import { Complex, Duck, Z, reim2z, z2reim, will_Position } from './util';
 
 export interface DuckshogiState {
-  board: Complex[];
-  pool: number[];
+  board: Duck[];
+  pool: Duck[];
   step: number;
   record?: any[];
   remarked?: number;
@@ -33,12 +33,12 @@ export class ActionTypes {
 const INITIAL_STATE =  {
   remarked: -100,
   board: [
-    Z(31,31),Z(31,31),Z(31,31),
-    Z(31,31),Z(31,31),Z(31,31),
-    Z(31,31),Z(31,31),Z(31,31),
-    Z(31,31),Z(31,31),Z(31,31),
+    { owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },
+    { owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },
+    { owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },
+    { owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },{ owner:0, who:Z(31,31) },
   ],
-  pool: [0,0,0,0,0,0], //opponent's Elephant, Giraffe, Chick and yours
+  pool: [{ owner:0, who:Z(31,31)}], //opponent's Elephant, Giraffe, Chick and yours
   step: 0,
   record: [{ predator:Z(0,0), from:-100, to:-100, prey:Z(0,0) }],
   phase: "waiting",
@@ -84,15 +84,17 @@ const condensated = ( board:number[], move:Move ) => {
   }
 
 const nextBoard = ( world:DuckshogiState, move:Move ) => {
-  const q = z2reim( move.predator, world.step%2 )&M(move.to-move.from);
+  const m = world.step%2==0? M(move.to-move.from): M(move.from-move.to);
+  const q = z2reim( move.predator, world.step%2 ) & m;
   const board_ = world.board
     .map( (a,idx) =>
-      idx==move.from? Z(0,0):
-      idx==move.to?   reim2z(q,world.step%2): a )
-  const board_re = condensated( board_.map( a => a.re ), move )
-  const board_im = condensated( board_.map( a => a.im ), move )
+      idx==move.from? { owner:0, who:Z(0,0) }:
+      idx==move.to?   { owner:world.step%2+1, who:reim2z(q,world.step%2) }:
+      a )
+  const board_re = condensated( board_.map( a => a.who.re ), move )
+  const board_im = condensated( board_.map( a => a.who.im ), move )
   return Immutable.Range(0,12).toArray()
-    .map( a => Z(board_re[a],board_im[a]))
+    .map( a => { return { owner:board_[a].owner, who:Z(board_re[a],board_im[a]) }})
 }
 
 export default function reducer(
@@ -100,16 +102,20 @@ export default function reducer(
   action: DuckshogiAction
 ): DuckshogiState {
 
-
-  const execute = ( move:Move, world:DuckshogiState ) => { return {
-    step: world.step+1,
-    board: nextBoard( world, move ),
-    record: world.record.concat(move),
-    remarked: -100,
-    phase:
-      move.prey.im==PIECES["Lion"]? "firstWin" :
-      move.prey.re==PIECES["Lion"]? "secondWin" : "waiting",
-    pool: world.pool
+  const execute = ( move:Move, world:DuckshogiState ) => {
+    const newPool = world.pool;
+    newPool.push({ owner:world.step%2+1, who:move.prey })
+    return {
+      step: world.step+1,
+      board: nextBoard( world, move ),
+      record: world.record.concat(move),
+      remarked: -100,
+      phase:
+        move.prey.im==PIECES["Lion"]? "firstWin" :
+        move.prey.re==PIECES["Lion"]? "secondWin" : "waiting",
+      pool: newPool
+        //.filter( a => a.who.re!=0 || a.who.im!=0 )
+        //.map( a => Z(a.who.im, a.who.re) )
     }}
 
   switch (action.type) {
@@ -125,10 +131,10 @@ export default function reducer(
         const duck = state.board[state.remarked];
         const captured = state.board[action.clicked];
         const move =  {
-          predator: state.board[state.remarked],
+          predator: state.board[state.remarked].who,
           from: state.remarked,
           to: action.clicked,
-          prey: captured,
+          prey: captured.who,
         }
         if( move.from < 12 ){
           if( willPosition( z2reim(move.predator,state.step%2), state.remarked ).indexOf( move.to ) == -1 ){
@@ -139,43 +145,7 @@ export default function reducer(
     }
 
     case ActionTypes.UNDO:
-      if (state.step<=0){
-        return ObjectAssign({}, state, { step: 0 });
-      }
-      let undoRecord = state.record;
-      const lastRecord = undoRecord.pop();
-      const boobyRecord = undoRecord.pop();
-
-      const lastPool = state.pool
-        .map( (amount,idx) =>
-          lastRecord.from<12? (
-            lastRecord.prey==0? amount: ( idx==(state.step)%2*3+Math.min(log2(Math.abs(lastRecord.prey)),3)-1 ? amount-1: amount )
-          ):(
-             idx==lastRecord.from-12? amount+1: amount
-          ));
-
-      const boobyPool = lastPool
-        .map( (amount,idx) =>
-          boobyRecord.from<12? (
-            boobyRecord.prey==0? amount: ( idx==(state.step-1)%2*3+Math.min(log2(Math.abs(boobyRecord.prey)),3)-1 ? amount-1: amount )
-          ):(
-             idx==boobyRecord.from-12? amount+1: amount
-          ));
-
-      return ObjectAssign( {}, state,{
-        step: state.step-2,
-        phase: "waiting",
-        board: state.board
-          .map( (a,idx) =>
-            idx==lastRecord.to? lastRecord.prey:
-            idx==lastRecord.from? lastRecord.predator: a )
-          .map( (a,idx) =>
-            idx==boobyRecord.to? boobyRecord.prey:
-            idx==boobyRecord.from? boobyRecord.predator: a ),
-        record: undoRecord,
-        remarked: -100,
-        pool: boobyPool,
-      })
+      return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
 
     case ActionTypes.EXEC_MOVE:
       try{
@@ -200,7 +170,7 @@ export class ActionDispatcher {
   undo(){
     this.dispatch({ type: ActionTypes.UNDO });
   }
-  execMove( move:any ){
+  execMove( move:Move ){
     this.dispatch({ type: ActionTypes.EXEC_MOVE, move: move });
   }
 }
