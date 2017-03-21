@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
 import * as ObjectAssign from 'object-assign';
 
-import { W, H, PIECES, p2ij, willPosition, log2 } from './util'
+import { W, H, PIECES, POOL_SHIFT, p2ij, willPosition, log2 } from './util'
 import { Complex, Duck, Z, reim2z, z2reim, will_Position } from './util';
 
 export interface DuckshogiState {
@@ -91,10 +91,18 @@ const nextBoard = ( world:DuckshogiState, move:Move ) => {
       idx==move.from? { owner:0, who:Z(0,0) }:
       idx==move.to?   { owner:world.step%2+1, who:reim2z(q,world.step%2) }:
       a )
-  const board_re = condensated( board_.map( a => a.who.re ), move )
-  const board_im = condensated( board_.map( a => a.who.im ), move )
+  let pool_ = world.pool;
+  pool_.push({ owner:world.step%2+1, who:move.prey })
+
+  const res_ = board_.map( a => a.who.re ).concat(pool_.map( a => a.who.re ))
+  const ims_ = board_.map( a => a.who.im ).concat(pool_.map( a => a.who.im ))
+  const res = condensated( res_, move )
+  const ims = condensated( ims_, move )
   return Immutable.Range(0,12).toArray()
-    .map( a => { return { owner:board_[a].owner, who:Z(board_re[a],board_im[a]) }})
+    .map( a => { return { owner:board_[a].owner, who:Z(res[a],ims[a]) }})
+    .map( (a,idx) =>
+      move.from>=12&&idx==move.to? { owner:world.step%2+1, who:move.predator }: a )
+
 }
 
 export default function reducer(
@@ -103,8 +111,32 @@ export default function reducer(
 ): DuckshogiState {
 
   const execute = ( move:Move, world:DuckshogiState ) => {
-    const newPool = world.pool;
-    newPool.push({ owner:world.step%2+1, who:move.prey })
+    const m = world.step%2==0? M(move.to-move.from): M(move.from-move.to);
+    const q = z2reim( move.predator, world.step%2 ) & m;
+    const board_ = world.board
+      .map( (a,idx) =>
+        idx==move.from? { owner:0, who:Z(0,0) }:
+        idx==move.to?   { owner:world.step%2+1, who:reim2z(q,world.step%2) }:
+        a )
+    let pool_ = world.pool;
+    if( move.from<POOL_SHIFT ){
+      pool_.push({ owner:world.step%2+1, who:move.prey })
+    }
+
+    const res_ = board_.map( a => a.who.re ).concat(pool_.map( a => a.who.re ))
+    const ims_ = board_.map( a => a.who.im ).concat(pool_.map( a => a.who.im ))
+    const res = condensated( res_, move )
+    const ims = condensated( ims_, move )
+    const newBoard = Immutable.Range(0,12).toArray()
+      .map( a => { return { owner:board_[a].owner, who:Z(res[a],ims[a]) }})
+      .map( (a,idx) =>
+        move.from<12? a:
+        idx==move.to? move.predator: a )
+    const newPool = Immutable.Range(0,pool_.length).toArray()
+      .map( a => { return { owner:pool_[a].owner, who:Z(res[a+12],ims[a+12]) }})
+      .filter( a => a.who.re!=0 || a.who.im!=0 )
+      .filter( (a,idx) => move.from<12? true: idx!=move.from-POOL_SHIFT )
+
     return {
       step: world.step+1,
       board: nextBoard( world, move ),
@@ -114,32 +146,41 @@ export default function reducer(
         move.prey.im==PIECES["Lion"]? "firstWin" :
         move.prey.re==PIECES["Lion"]? "secondWin" : "waiting",
       pool: newPool
-        //.filter( a => a.who.re!=0 || a.who.im!=0 )
-        //.map( a => Z(a.who.im, a.who.re) )
     }}
 
   switch (action.type) {
 
     case ActionTypes.CLICK: switch( state.phase ){
       case "waiting":
+        if( action.clicked<12 && state.board[action.clicked].owner==(state.step+1)%2+1 ||
+            action.clicked>=12 && state.pool[action.clicked-POOL_SHIFT].owner!=state.step%2+1
+        ){
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
+        }
         return ObjectAssign( {}, state, { phase: "selecting", remarked: action.clicked } );
 
       case "selecting":
-        if( action.clicked==state.remarked ){
+        if( action.clicked==state.remarked ||
+            state.remarked>=12 && (
+              action.clicked>=12 ||
+              state.board[action.clicked].owner==1 ||
+              state.board[action.clicked].owner==2 )
+        ){
           return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
-        const duck = state.board[state.remarked];
-        const captured = state.board[action.clicked];
-        const move =  {
+        const move =  state.remarked<POOL_SHIFT? {
           predator: state.board[state.remarked].who,
           from: state.remarked,
           to: action.clicked,
-          prey: captured.who,
+          prey: state.board[action.clicked].who,
+        }:{
+          predator: state.pool[state.remarked-POOL_SHIFT].who,
+          from: state.remarked,
+          to: action.clicked,
+          prey: state.board[action.clicked].who,
         }
-        if( move.from < 12 ){
-          if( willPosition( z2reim(move.predator,state.step%2), state.remarked ).indexOf( move.to ) == -1 ){
-            return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
-          }
+        if( move.from < 12 && willPosition( z2reim(move.predator,state.step%2), state.remarked ).indexOf( move.to ) == -1 ){
+          return ObjectAssign( {}, state, { phase: "waiting", remarked: -100 } );
         }
         return ObjectAssign( {}, state, execute(move, state) );
     }

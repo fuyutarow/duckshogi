@@ -27,6 +27,7 @@ export const H = 4;
 export const R = 30;
 export const MERGINX = 20;
 export const MERGINY = 100;
+export const POOL_SHIFT = W*H;
 
 export const p2ij = ( p:number ) => {
   return {
