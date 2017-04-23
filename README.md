@@ -2,7 +2,7 @@
 
 ## Demo
 
-https://sktnkysh.github.io/duckshogi/
+https://ytro10.github.io/duckshogi/
 
 ## Requirement
 
